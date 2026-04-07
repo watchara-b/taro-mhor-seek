@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 Tarot Reader Pro 🔮</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #0b0c10; color: #c5c6c7; text-align: center; padding: 20px; margin: 0; }
+        .container { max-width: 900px; margin: 0 auto; background-color: #1f2833; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); box-sizing: border-box; }
+        h1 { font-size: 28px; color: #d4af37; margin-top: 0; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
+        
+        .sacred-warning { background-color: #2b1b1b; border: 1px solid #ff4c4c; color: #ffb3b3; padding: 15px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
+        .controls { margin: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        select, button { padding: 12px 20px; font-size: 16px; border-radius: 8px; border: 1px solid #45a29e; width: 100%; max-width: 350px; box-sizing: border-box; }
+        select { background-color: #0b0c10; color: #d4af37; outline: none; border-color: #d4af37; }
+        button { background-color: #d4af37; color: #0b0c10; font-weight: bold; cursor: pointer; transition: 0.3s; border: none; }
+        button:hover { background-color: #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.5); }
+
+        /* กองไพ่คว่ำสำหรับจิ้มเลือก */
+        .deck-area { display: none; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 30px 0; padding: 25px 15px; background-color: #111; border-radius: 10px; max-height: 450px; overflow-y: auto; border: 1px solid #333; }
+        
+        /* ลายหลังไพ่แบบใหม่ พรีเมียมและลึกลับ (Sacred Geometry) */
+        .card-back { 
+            width: 48px; 
+            height: 75px; 
+            background-color: #0b0c10;
+            /* ลวดลายเรขาคณิตศักดิ์สิทธิ์ด้วย SVG */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 0 L24 12 L12 24 L0 12 Z' fill='none' stroke='%23d4af37' stroke-width='0.5' opacity='0.35'/%3E%3Ccircle cx='12' cy='12' r='7' fill='none' stroke='%23d4af37' stroke-width='0.5' opacity='0.35'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23d4af37' opacity='0.5'/%3E%3C/svg%3E");
+            background-size: 24px 24px;
+            border: 2px solid #d4af37; 
+            border-radius: 5px; 
+            position: relative;
+            cursor: pointer; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease; 
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9), 0 3px 6px rgba(0,0,0,0.5);
+        }
+        .card-back::before {
+            content: "❂";
+            color: #f1c40f;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            text-shadow: 0 0 8px #f1c40f, 0 0 15px #ffdf00;
+            background: #0b0c10;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid #d4af37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+            z-index: 2;
+        }
+        .card-back::after {
+            content: "";
+            position: absolute;
+            top: 3px; bottom: 3px; left: 3px; right: 3px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        .card-back:hover { 
+            transform: translateY(-12px) scale(1.1); 
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.7); 
+            z-index: 10; 
+            border-color: #f1c40f;
+        }
+        .card-back.picked { visibility: hidden; }
+
+        .instruction { color: #f1c40f; font-size: 18px; margin-bottom: 20px; width: 100%; font-weight: bold; }
+
+        .cards-layout { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 30px; }
+        .card-item { flex: 1 1 200px; max-width: 220px; background-color: #0b0c10; padding: 15px; border-radius: 10px; border: 1px solid #d4af37; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .card-position { color: #d4af37; font-weight: bold; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #d4af37; padding-bottom: 5px; }
+        
+        .card-image { width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #444; }
+        .card-name { font-size: 15px; font-weight: bold; color: #fff; margin-bottom: 8px; }
+        .card-meaning { font-size: 13px; color: #c5c6c7; line-height: 1.5; text-align: left; }
+
+        .summary-box { margin-top: 30px; padding: 25px; background-color: #111; color: #d4af37; border: 1px solid #d4af37; border-radius: 10px; display: none; text-align: left; line-height: 1.6; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+        .summary-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; text-align: center; }
+        .summary-text { color: #fff; }
+
+        @media (max-width: 600px) { .cards-layout { flex-direction: column; align-items: center; } .card-item { max-width: 100%; width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🔮 Tarot Reader Pro 🔮</h1>
+        
+        <div class="sacred-warning">
+            <strong>⚠️ ข้อควรระวังก่อนเปิดไพ่:</strong><br>
+            ไพ่ยิปซีคือภาพสะท้อนพลังงานและจิตใต้สำนึกของคุณ ณ ขณะนี้ 
+            เพื่อความแม่นยำ <strong>ไม่ควรดูดวงในคำถามเดิมซ้ำๆ ภายในระยะเวลา 3-6 เดือน</strong> ทำสมาธิให้นิ่ง กำหนดจิตตั้งคำถามให้ชัดเจนก่อนทำการเลือกไพ่
+        </div>
+        
+        <div class="controls" id="controlsArea">
+            <select id="spreadType">
+                <option value="1">ดูดวงรายวัน (1 ใบ)</option>
+                <option value="3">อดีต ปัจจุบัน อนาคต (3 ใบ)</option>
+                <option value="5">ความรัก - Love Spread (5 ใบ)</option>
+                <option value="6">ทางเลือก - Decision Making (6 ใบ)</option>
+                <option value="10">ภาพรวมชีวิต - Celtic Cross (10 ใบ)</option>
+            </select>
+            <button onclick="startReading()">เริ่มการทำนาย และสับไพ่</button>
+        </div>
+
+        <div class="deck-area" id="deckArea">
+            <div class="instruction" id="instructionText">ทำสมาธิแล้วจิ้มเลือกไพ่</div>
+        </div>
+
+        <div class="cards-layout" id="cardsContainer"></div>
+
+        <div class="summary-box" id="summaryBox">
+            <div class="summary-title">✨ บทสรุปดวงชะตาของคุณ ✨</div>
+            <div class="summary-text" id="summaryText"></div>
+        </div>
+    </div>
+
+    <script>
+        const getUrl = (filename) => `https://en.wikipedia.org/wiki/Special:FilePath/${filename}`;
+
+        const tarotDeck = [
+            // --- MAJOR ARCANA ---
+            { name: "0 - The Fool", score: 1, image: getUrl("RWS_Tarot_00_Fool.jpg"), meaning: "การเริ่มต้นใหม่ อิสระ การผจญภัย ความไร้เดียงสา ปล่อยวางความกังวล" },
+            { name: "I - The Magician", score: 1, image: getUrl("RWS_Tarot_01_Magician.jpg"), meaning: "ศักยภาพ ทักษะ การสื่อสาร ความสำเร็จจากการลงมือทำด้วยตัวเอง" },
+            { name: "II - The High Priestess", score: 0, image: getUrl("RWS_Tarot_02_High_Priestess.jpg"), meaning: "ลางสังหรณ์ ความลับ ความนิ่งสงบ การใช้สติปัญญาและสัญชาตญาณ" },
+            { name: "III - The Empress", score: 1, image: getUrl("RWS_Tarot_03_Empress.jpg"), meaning: "ความอุดมสมบูรณ์ ความรัก ความเมตตา การเติบโตงอกงาม" },
+            { name: "IV - The Emperor", score: 1, image: getUrl("RWS_Tarot_04_Emperor.jpg"), meaning: "อำนาจ ความมั่นคง ระเบียบวินัย ความเป็นผู้นำและการปกครอง" },
+            { name: "V - The Hierophant", score: 0, image: getUrl("RWS_Tarot_05_Hierophant.jpg"), meaning: "ประเพณี ความเชื่อ ครูบาอาจารย์ การชี้แนะ หรือการแต่งงาน" },
+            { name: "VI - The Lovers", score: 1, image: getUrl("RWS_Tarot_06_Lovers.jpg"), meaning: "ความรัก ความสัมพันธ์ การดึงดูด และการตัดสินใจเลือกทางที่ใช่" },
+            { name: "VII - The Chariot", score: 1, image: getUrl("RWS_Tarot_07_Chariot.jpg"), meaning: "ชัยชนะ ความมุ่งมั่น การเดินทาง การฝ่าฟันอุปสรรคด้วยความตั้งใจ" },
+            { name: "VIII - Strength", score: 1, image: getUrl("RWS_Tarot_08_Strength.jpg"), meaning: "ความกล้าหาญ ความอดทน การเอาชนะอุปสรรคด้วยความนุ่มนวลและเมตตา" },
+            { name: "IX - The Hermit", score: 0, image: getUrl("RWS_Tarot_09_Hermit.jpg"), meaning: "การปลีกวิเวก ค้นหาความจริงในตัวเอง ความรอบคอบ และคำแนะนำ" },
+            { name: "X - Wheel of Fortune", score: 1, image: getUrl("RWS_Tarot_10_Wheel_of_Fortune.jpg"), meaning: "วัฏจักร โชคชะตา โอกาสใหม่ๆ การเปลี่ยนแปลงไปในทางที่ดีขึ้น" },
+            { name: "XI - Justice", score: 0, image: getUrl("RWS_Tarot_11_Justice.jpg"), meaning: "ความยุติธรรม ความสมดุล กฎหมาย เหตุและผล ทำสิ่งใดได้สิ่งนั้น" },
+            { name: "XII - The Hanged Man", score: -1, image: getUrl("RWS_Tarot_12_Hanged_Man.jpg"), meaning: "การเสียสละ การหยุดนิ่งเพื่อทบทวน มุมมองที่แตกต่าง หรือความล่าช้า" },
+            { name: "XIII - Death", score: -1, image: getUrl("RWS_Tarot_13_Death.jpg"), meaning: "การสิ้นสุดเพื่อเริ่มต้นใหม่ การเปลี่ยนแปลงครั้งใหญ่ การปล่อยวางอดีต" },
+            { name: "XIV - Temperance", score: 0, image: getUrl("RWS_Tarot_14_Temperance.jpg"), meaning: "การประนีประนอม การโยกย้าย การรักษาสมดุล และการปรับตัว" },
+            { name: "XV - The Devil", score: -1, image: getUrl("RWS_Tarot_15_Devil.jpg"), meaning: "กิเลส ความลุ่มหลง การยึดติด ภาระผูกพัน หรืออุปสรรคจากความกลัว" },
+            { name: "XVI - The Tower", score: -1, image: getUrl("RWS_Tarot_16_Tower.jpg"), meaning: "เหตุการณ์ไม่คาดฝัน การพังทลายของสิ่งเดิมเพื่อสร้างรากฐานใหม่" },
+            { name: "XVII - The Star", score: 1, image: getUrl("RWS_Tarot_17_Star.jpg"), meaning: "ความหวัง แรงบันดาลใจ การเยียวยารักษา และความสงบสุข" },
+            { name: "XVIII - The Moon", score: -1, image: getUrl("RWS_Tarot_18_Moon.jpg"), meaning: "ความวิตกกังวล ภาพลวงตา ความสับสน และเรื่องที่ยังไม่ชัดเจน" },
+            { name: "XIX - The Sun", score: 1, image: getUrl("RWS_Tarot_19_Sun.jpg"), meaning: "ความสุข ความสำเร็จ พลังงานบวกล้นหลาม อุปสรรคถูกปัดเป่า ชัยชนะ" },
+            { name: "XX - Judgement", score: 0, image: getUrl("RWS_Tarot_20_Judgement.jpg"), meaning: "การตื่นรู้ การตัดสินผลของการกระทำ การได้รับโอกาสครั้งที่สอง" },
+            { name: "XXI - The World", score: 1, image: getUrl("RWS_Tarot_21_World.jpg"), meaning: "ความสมบูรณ์แบบ ความสำเร็จสูงสุด การจบรอบวัฏจักรเพื่อก้าวสู่อีกขั้น" },
+
+            // --- WANDS (ไม้เท้า) ---
+            { name: "Ace of Wands", score: 1, image: getUrl("Wands01.jpg"), meaning: "แรงบันดาลใจใหม่ โอกาสเรื่องงานหรือโปรเจกต์ใหม่ที่น่าตื่นเต้น" },
+            { name: "2 of Wands", score: 1, image: getUrl("Wands02.jpg"), meaning: "การวางแผนอนาคต การมองการณ์ไกล และการตัดสินใจเลือกเส้นทาง" },
+            { name: "3 of Wands", score: 1, image: getUrl("Wands03.jpg"), meaning: "การขยายตัว ความก้าวหน้า การรอคอยผลลัพธ์ที่กำลังจะมาถึง" },
+            { name: "4 of Wands", score: 1, image: getUrl("Wands04.jpg"), meaning: "ความมั่นคง ความสำเร็จในระยะแรก การเฉลิมฉลอง และครอบครัว" },
+            { name: "5 of Wands", score: -1, image: getUrl("Wands05.jpg"), meaning: "ความขัดแย้ง การแข่งขัน ความวุ่นวายเล็กๆ น้อยๆ ที่ต้องจัดการ" },
+            { name: "6 of Wands", score: 1, image: getUrl("Wands06.jpg"), meaning: "ชัยชนะ การได้รับการยอมรับ ความสำเร็จที่มาจากความพยายาม" },
+            { name: "7 of Wands", score: 0, image: getUrl("Wands07.jpg"), meaning: "การยืนหยัดต่อสู้ การปกป้องจุดยืนของตนเองท่ามกลางอุปสรรค" },
+            { name: "8 of Wands", score: 1, image: getUrl("Wands08.jpg"), meaning: "ความรวดเร็ว ข่าวสาร การเดินทาง การเปลี่ยนแปลงที่เกิดขึ้นอย่างไว" },
+            { name: "9 of Wands", score: 0, image: getUrl("Wands09.jpg"), meaning: "ความเหน็ดเหนื่อยแต่ไม่ยอมแพ้ ความระแวดระวังจากบาดแผลในอดีต" },
+            { name: "10 of Wands", score: -1, image: getUrl("Wands10.jpg"), meaning: "ภาระหนัก ความรับผิดชอบที่มากเกินไป การแบกรับทุกอย่างไว้คนเดียว" },
+            { name: "Page of Wands", score: 1, image: getUrl("Wands11.jpg"), meaning: "ข่าวดีเรื่องงาน ความกระตือรือร้น คนอายุน้อยที่นำไฟในการทำงานมาให้" },
+            { name: "Knight of Wands", score: 1, image: getUrl("Wands12.jpg"), meaning: "ความมุ่งมั่น พลังงานล้นเหลือ การลุยไปข้างหน้าอย่างไม่เกรงกลัว" },
+            { name: "Queen of Wands", score: 1, image: getUrl("Wands13.jpg"), meaning: "ความมีเสน่ห์ ความมั่นใจในตัวเอง ผู้หญิงเก่งที่จัดการชีวิตได้ดี" },
+            { name: "King of Wands", score: 1, image: getUrl("Wands14.jpg"), meaning: "ความเป็นผู้นำ วิสัยทัศน์ที่กว้างไกล ผู้ชายที่มีอำนาจและประสบความสำเร็จ" },
+
+            // --- CUPS (ถ้วย) ---
+            { name: "Ace of Cups", score: 1, image: getUrl("Cups01.jpg"), meaning: "ความรักครั้งใหม่ ความรู้สึกเอ่อล้น โอกาสดีๆ ทางด้านอารมณ์" },
+            { name: "2 of Cups", score: 1, image: getUrl("Cups02.jpg"), meaning: "ความเข้าใจ ความสัมพันธ์ที่สมดุล การตกลงร่วมมือ ความรักที่ลงตัว" },
+            { name: "3 of Cups", score: 1, image: getUrl("Cups03.jpg"), meaning: "มิตรภาพ การเฉลิมฉลอง การพบปะสังสรรค์ ความสุขร่วมกับผู้อื่น" },
+            { name: "4 of Cups", score: 0, image: getUrl("Cups04.jpg"), meaning: "ความเบื่อหน่าย การปฏิเสธโอกาส มัวแต่สนใจอดีตจนมองไม่เห็นสิ่งใหม่" },
+            { name: "5 of Cups", score: -1, image: getUrl("Cups05.jpg"), meaning: "ความสูญเสีย ความเศร้าโศกเสียใจกับสิ่งที่ผ่านไปแล้ว" },
+            { name: "6 of Cups", score: 1, image: getUrl("Cups06.jpg"), meaning: "ความทรงจำในอดีต คนรักเก่ากลับมา ความไร้เดียงสา ความผูกพัน" },
+            { name: "7 of Cups", score: 0, image: getUrl("Cups07.jpg"), meaning: "ทางเลือกมากมาย ความเพ้อฝัน การต้องตัดสินใจเลือกสิ่งที่เป็นจริง" },
+            { name: "8 of Cups", score: -1, image: getUrl("Cups08.jpg"), meaning: "การเดินจากลา การทิ้งสิ่งที่เคยสร้างมาเพื่อค้นหาความหมายที่ลึกซึ้งกว่า" },
+            { name: "9 of Cups", score: 1, image: getUrl("Cups09.jpg"), meaning: "ความพึงพอใจ ความปรารถนาที่เป็นจริง ไพ่แห่งความสมหวัง" },
+            { name: "10 of Cups", score: 1, image: getUrl("Cups10.jpg"), meaning: "ความสุขสมบูรณ์ในครอบครัว ความรักที่ยั่งยืน จุดหมายสูงสุดทางอารมณ์" },
+            { name: "Page of Cups", score: 1, image: getUrl("Cups11.jpg"), meaning: "ข่าวดีเรื่องความรัก การเริ่มต้นความรู้สึกดีๆ ความอ่อนโยน" },
+            { name: "Knight of Cups", score: 1, image: getUrl("Cups12.jpg"), meaning: "การนำเสนอความรัก ความโรแมนติก คนที่เข้ามาจีบหรือหยิบยื่นไมตรี" },
+            { name: "Queen of Cups", score: 1, image: getUrl("Cups13.jpg"), meaning: "ความเมตตา ความเห็นอกเห็นใจ ผู้หญิงที่ใช้อารมณ์และความรู้สึกนำทาง" },
+            { name: "King of Cups", score: 1, image: getUrl("Cups14.jpg"), meaning: "การควบคุมอารมณ์ได้ดี ความนิ่งสงบ ผู้ใหญ่ที่ใจดีและให้คำปรึกษาได้" },
+
+            // --- SWORDS (ดาบ) ---
+            { name: "Ace of Swords", score: 1, image: getUrl("Swords01.jpg"), meaning: "ความคิดทะลุปรุโปร่ง การตัดสินใจที่เด็ดขาด ชัยชนะด้วยสติปัญญา" },
+            { name: "2 of Swords", score: 0, image: getUrl("Swords02.jpg"), meaning: "ความลังเลใจ ทางสองแพร่ง การปิดกั้นตัวเองจากการรับรู้ปัญหา" },
+            { name: "3 of Swords", score: -1, image: getUrl("Swords03.jpg"), meaning: "ความเจ็บปวด ความเสียใจ ความขัดแย้ง หรือการเลิกรา" },
+            { name: "4 of Swords", score: 0, image: getUrl("Swords04.jpg"), meaning: "การพักฟื้น การหยุดพักจากความเครียดและปัญหาเพื่อฟื้นฟูจิตใจ" },
+            { name: "5 of Swords", score: -1, image: getUrl("Swords05.jpg"), meaning: "ชัยชนะที่สูญเสีย ความขัดแย้งที่ไม่มีใครได้ประโยชน์ที่แท้จริง" },
+            { name: "6 of Swords", score: 0, image: getUrl("Swords06.jpg"), meaning: "การเดินทางออกจากปัญหา สถานการณ์กำลังค่อยๆ ดีขึ้นอย่างช้าๆ" },
+            { name: "7 of Swords", score: -1, image: getUrl("Swords07.jpg"), meaning: "การหลบซ่อน การทำบางอย่างลับหลัง ความไม่ซื่อสัตย์ หรือการเลี่ยงปัญหา" },
+            { name: "8 of Swords", score: -1, image: getUrl("Swords08.jpg"), meaning: "ความรู้สึกถูกต้อนให้จนมุม หาทางออกไม่เจอ (ทั้งที่จริงอาจมีทางออก)" },
+            { name: "9 of Swords", score: -1, image: getUrl("Swords09.jpg"), meaning: "ความเครียด ความวิตกกังวล การนอนไม่หลับ การคิดมากไปเอง" },
+            { name: "10 of Swords", score: -1, image: getUrl("Swords10.jpg"), meaning: "จุดต่ำสุดของปัญหา ความเจ็บปวดขั้นสุด แต่มันกำลังจะจบลงเพื่อเริ่มใหม่" },
+            { name: "Page of Swords", score: 0, image: getUrl("Swords11.jpg"), meaning: "ความอยากรู้อยากเห็น ข่าวสารที่ต้องระวัง การสอดแนม ความฉลาดหลักแหลม" },
+            { name: "Knight of Swords", score: 0, image: getUrl("Swords12.jpg"), meaning: "ความหุนหันพลันแล่น การพุ่งเข้าชนปัญหาอย่างรวดเร็วและตรงไปตรงมา" },
+            { name: "Queen of Swords", score: 0, image: getUrl("Swords13.jpg"), meaning: "ความเด็ดขาด การใช้เหตุผลมากกว่าอารมณ์ ผู้หญิงที่เข้มแข็งและตรงไปตรงมา" },
+            { name: "King of Swords", score: 1, image: getUrl("Swords14.jpg"), meaning: "ความยุติธรรม การตัดสินใจที่มีหลักการ อำนาจที่มาจากสติปัญญา" },
+
+            // --- PENTACLES (เหรียญ) ---
+            { name: "Ace of Pentacles", score: 1, image: getUrl("Pents01.jpg"), meaning: "โอกาสทางการเงินใหม่ๆ โชคลาภ การลงทุนที่ให้ผลตอบแทนดี" },
+            { name: "2 of Pentacles", score: 0, image: getUrl("Pents02.jpg"), meaning: "การหมุนเงิน การบริหารจัดการชีวิตหลายๆ ด้านให้สมดุล" },
+            { name: "3 of Pentacles", score: 1, image: getUrl("Pents03.jpg"), meaning: "การทำงานเป็นทีม การสร้างรากฐาน ทักษะที่ได้รับการยอมรับ" },
+            { name: "4 of Pentacles", score: 0, image: getUrl("Pents04.jpg"), meaning: "การหวงแหนทรัพย์สิน ความตระหนี่ ความกลัวที่จะสูญเสียความมั่นคง" },
+            { name: "5 of Pentacles", score: -1, image: getUrl("Pents05.jpg"), meaning: "ความขัดสน ปัญหาการเงิน ความรู้สึกโดดเดี่ยวหรือขาดที่พึ่ง" },
+            { name: "6 of Pentacles", score: 1, image: getUrl("Pents06.jpg"), meaning: "การให้และการรับ ความเอื้อเฟื้อเผื่อแผ่ การได้รับความช่วยเหลือทางการเงิน" },
+            { name: "7 of Pentacles", score: 0, image: getUrl("Pents07.jpg"), meaning: "การรอคอยผลผลิต การประเมินผลงานที่ลงทุนลงแรงไป" },
+            { name: "8 of Pentacles", score: 1, image: getUrl("Pents08.jpg"), meaning: "ความขยันหมั่นเพียร การมุ่งมั่นพัฒนาทักษะ การทำงานหนักที่คุ้มค่า" },
+            { name: "9 of Pentacles", score: 1, image: getUrl("Pents09.jpg"), meaning: "ความมั่งคั่ง ความสำเร็จที่สร้างมาด้วยตัวเอง การเสวยสุขในสิ่งที่ทำมา" },
+            { name: "10 of Pentacles", score: 1, image: getUrl("Pents10.jpg"), meaning: "ความมั่งคั่งระดับครอบครัว มรดก ความมั่นคงในระยะยาว ความสำเร็จสูงสุด" },
+            { name: "Page of Pentacles", score: 1, image: getUrl("Pents11.jpg"), meaning: "โอกาสในการเรียนรู้ใหม่ๆ ข่าวดีเรื่องเงินหรือการเรียน" },
+            { name: "Knight of Pentacles", score: 1, image: getUrl("Pents12.jpg"), meaning: "ความรับผิดชอบ การทำงานอย่างค่อยเป็นค่อยไปแต่มั่นคงและไว้ใจได้" },
+            { name: "Queen of Pentacles", score: 1, image: getUrl("Pents13.jpg"), meaning: "ความอุดมสมบูรณ์ ผู้หญิงที่เก่งทั้งเรื่องงานบ้านและการหาเงิน ดูแลคนอื่นดี" },
+            { name: "King of Pentacles", score: 1, image: getUrl("Pents14.jpg"), meaning: "ความมั่นคงสูงสุด นักธุรกิจที่ประสบความสำเร็จ ผู้นำที่มีฐานะมั่งคั่ง" }
+        ];
+
+        const spreads = {
+            1: ["คำทำนายของคุณ"],
+            3: ["อดีต", "ปัจจุบัน", "อนาคต"],
+            5: ["ใบที่ 1: ตัวคุณเอง", "ใบที่ 2: คู่ของคุณ", "ใบที่ 3: ความสัมพันธ์ปัจจุบัน", "ใบที่ 4: คำแนะนำ", "ใบที่ 5: ภาพรวม"],
+            6: ["ใบที่ 1: เป้าหมายของคุณ", "ใบที่ 2: ข้อดีทางเลือกที่ 1", "ใบที่ 3: ข้อดีทางเลือกที่ 2", "ใบที่ 4: ข้อเสียทางเลือก 1", "ใบที่ 5: ข้อเสียทางเลือก 2", "ใบที่ 6: ผลลัพธ์"],
+            10: [
+                "1. สถานการณ์ปัจจุบัน", "2. อุปสรรคที่ต้องเผชิญ", "3. จิตใต้สำนึก", "4. อดีตที่ผ่านมา", 
+                "5. จุดมุ่งหมาย/คาดหวัง", "6. อนาคตอันใกล้", "7. ตัวตนภายในของคุณ", "8. สภาพแวดล้อมภายนอก", 
+                "9. ความหวังและความกลัว", "10. ภาพรวมสรุป"
+            ]
+        };
+
+        let currentSpreadLimit = 1;
+        let drawnCardsCount = 0;
+        let activeDeck = [];
+        let totalScore = 0;
+        let currentPositions = [];
+
+        // ฟังก์ชันสับไพ่แบบ Fisher-Yates (สุ่มจริง 100%)
+        function shuffleDeck(deck) {
+            let shuffled = [...deck];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startReading() {
+            currentSpreadLimit = parseInt(document.getElementById('spreadType').value);
+            currentPositions = spreads[currentSpreadLimit];
+            drawnCardsCount = 0;
+            totalScore = 0;
+            
+            document.getElementById('controlsArea').style.display = 'none';
+            document.getElementById('cardsContainer').innerHTML = '';
+            document.getElementById('summaryBox').style.display = 'none';
+            
+            const deckArea = document.getElementById('deckArea');
+            deckArea.style.display = 'flex';
+            updateInstruction();
+
+            // สับไพ่ก่อนที่จะแจกแจงลงในกอง 78 ใบ
+            activeDeck = shuffleDeck(tarotDeck);
+            setupDeckElements();
+        }
+
+        function setupDeckElements() {
+            const deckArea = document.getElementById('deckArea');
+            const cards = deckArea.querySelectorAll('.card-back');
+            cards.forEach(card => card.remove());
+
+            // สร้างกองไพ่ 78 ใบ โดยผูก Index ไว้กับไพ่ที่สับแล้ว
+            for(let i=0; i<78; i++) {
+                let cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                // เมื่อจิ้มไพ่ใบไหน จะส่ง index i ของไพ่ใบนั้นไป
+                cardBack.onclick = function() { pickCard(this, i); };
+                deckArea.appendChild(cardBack);
+            }
+        }
+
+        function updateInstruction() {
+            const remain = currentSpreadLimit - drawnCardsCount;
+            document.getElementById('instructionText').innerText = `ทำสมาธิแล้วจิ้มเลือกไพ่ที่ดึงดูดคุณ (เหลืออีก ${remain} ใบ)`;
+        }
+
+        // รับค่า index ของไพ่ใบที่ถูกจิ้มมาด้วย
+        function pickCard(cardElement, index) {
+            if (drawnCardsCount >= currentSpreadLimit) return;
+            if (cardElement.classList.contains('picked')) return; // ป้องกันการจิ้มไพ่ใบเดิมซ้ำ
+
+            cardElement.classList.add('picked'); // ซ่อนไพ่ใบที่ถูกเลือกไปแล้ว
+
+            // ดึงข้อมูลไพ่ที่ซ่อนอยู่ในตำแหน่งที่จิ้มจริงๆ ออกมา
+            const cardData = activeDeck[index];
+            totalScore += cardData.score;
+            
+            renderCard(cardData, drawnCardsCount);
+            drawnCardsCount++;
+            
+            if (drawnCardsCount < currentSpreadLimit) {
+                updateInstruction();
+            } else {
+                document.getElementById('deckArea').style.display = 'none';
+                showSummary();
+                
+                const restartBtn = document.createElement('button');
+                restartBtn.innerText = "เริ่มการทำนายใหม่";
+                restartBtn.style.marginTop = "20px";
+                restartBtn.style.padding = "12px 20px";
+                restartBtn.style.fontSize = "16px";
+                restartBtn.style.borderRadius = "8px";
+                restartBtn.style.border = "none";
+                restartBtn.style.backgroundColor = "#d4af37";
+                restartBtn.style.color = "#0b0c10";
+                restartBtn.style.fontWeight = "bold";
+                restartBtn.style.cursor = "pointer";
+                restartBtn.onclick = () => resetRitual();
+                document.getElementById('cardsContainer').appendChild(restartBtn);
+            }
+        }
+
+        function resetRitual() {
+            // ล้างไพ่และคำทำนายบนหน้าจอ
+            document.getElementById('cardsContainer').innerHTML = '';
+            document.getElementById('summaryBox').style.display = 'none';
+            
+            // นำส่วนควบคุมกลับมาแสดงใหม่
+            document.getElementById('controlsArea').style.display = 'flex';
+            
+            // รีเซ็ตตัวแปรต่างๆ
+            drawnCardsCount = 0;
+            totalScore = 0;
+            activeDeck = [];
+            currentPositions = [];
+
+            // เลื่อนหน้าจอกลับขึ้นไปด้านบนแบบนุ่มนวล
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderCard(cardData, index) {
+            const container = document.getElementById('cardsContainer');
+            const cardHTML = `
+                <div class="card-item" id="drawn-${index}" style="display: block;">
+                    <div class="card-position">${currentPositions[index]}</div>
+                    <img src="${cardData.image}" alt="${cardData.name}" class="card-image">
+                    <div class="card-name">${cardData.name}</div>
+                    <div class="card-meaning">${cardData.meaning}</div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', cardHTML);
+            
+            const newCard = document.getElementById(`drawn-${index}`);
+            newCard.animate([ { opacity: 0, transform: 'translateY(-20px)' }, { opacity: 1, transform: 'translateY(0)' } ], { duration: 500, fill: 'forwards' });
+        }
+
+        function showSummary() {
+            const summaryBox = document.getElementById('summaryBox');
+            const summaryText = document.getElementById('summaryText');
+            let text = "";
+
+            if (totalScore >= (currentSpreadLimit * 0.5)) {
+                text = "ไพ่สะท้อนพลังงานเชิงบวกที่โดดเด่นมากครับ อุปสรรคที่มีจะถูกคลี่คลาย ไพ่แนะนำให้คุณเดินหน้าต่อด้วยความมั่นใจ โอกาสและความสำเร็จกำลังรอคุณอยู่";
+            } else if (totalScore <= -(currentSpreadLimit * 0.3)) {
+                text = "ภาพรวมของไพ่เตือนถึงความท้าทายและการเปลี่ยนแปลงที่ต้องระวัง เป็นช่วงเวลาที่ควรชะลอการตัดสินใจเรื่องสำคัญ ถอยกลับมาตั้งหลัก ใช้สติให้มาก ทุกปัญหามีทางออกเสมอครับ";
+            } else {
+                text = "พลังงานภาพรวมอยู่ในสภาวะสมดุล ไพ่ไม่ได้ชี้ไปในทางบวกหรือลบอย่างสุดโต่ง ชะตาชีวิตช่วงนี้ขึ้นอยู่กับการกระทำของคุณเองเป็นหลัก ขอให้รักษาสมดุลทางอารมณ์และมีสติกับปัจจุบัน";
+            }
+
+            summaryText.innerText = text;
+            summaryBox.style.display = 'block';
+            summaryBox.animate([ { opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'translateY(0)' } ], { duration: 800, fill: 'forwards' });
+        }
+    </script>
+</body>
+</html>
