@@ -406,7 +406,7 @@
             
             // ใช้ .trim() เพื่อตัดช่องว่างหรือบรรทัดใหม่ที่อาจติดมาตอนก๊อปปี้ทิ้งไป
             const apiKey = isCanvas ? "" : myGitHubApiKey.trim();
-            const modelName = isCanvas ? "gemini-2.5-flash-preview-09-2025" : "gemini-1.5-flash";
+            const modelName = isCanvas ? "gemini-2.5-flash-preview-09-2025" : "gemini-2.0-flash";
             
             if (!isCanvas && (apiKey === "นำ_API_KEY_ของจริงมาใส่ตรงนี้" || apiKey === "")) {
                 return `<div class="error-message">
