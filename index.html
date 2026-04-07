@@ -108,6 +108,21 @@
         .summary-title { font-size: 22px; font-weight: bold; margin-bottom: 15px; text-align: center; color: #d4af37; }
         .summary-text strong { color: #f1c40f; }
 
+        /* Animation สำหรับตอน AI กำลังคิดวิเคราะห์ */
+        .loading-pulse {
+            animation: pulse 1.5s infinite;
+            color: #d4af37;
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; text-shadow: 0 0 15px #f1c40f; }
+            100% { opacity: 0.5; }
+        }
+
         @media (max-width: 600px) { .cards-layout { flex-direction: column; align-items: center; } .card-item { max-width: 100%; width: 100%; } }
     </style>
 </head>
@@ -368,86 +383,66 @@
             newCard.animate([ { opacity: 0, transform: 'translateY(-20px)' }, { opacity: 1, transform: 'translateY(0)' } ], { duration: 500, fill: 'forwards' });
         }
 
-        function showSummary() {
+        // ฟังก์ชันเชื่อมต่อกับ AI (Gemini API)
+        async function fetchGeminiReading(promptText) {
+            const apiKey = ""; // API Key จะถูกจัดการโดยระบบรันไทม์อัตโนมัติ
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                systemInstruction: { 
+                    parts: [{ 
+                        text: "คุณคือ 'หมอซีค (Mhor Seek)' ผู้เชี่ยวชาญด้านการอ่านไพ่ยิปซีระดับปรมาจารย์ ให้คำทำนายที่ลึกซึ้ง แม่นยำ มีเมตตา และเป็นมืออาชีพ คุณจะได้รับข้อมูลหน้าไพ่และตำแหน่งไพ่ที่ผู้ใช้จับได้ ให้คุณเชื่อมโยงความหมายของไพ่ทั้งหมดเข้าด้วยกันเพื่อทำนายดวงชะตา ตอบกลับเป็นภาษาไทย จัดรูปแบบการตอบด้วย HTML tags เท่านั้น (เช่น <br>, <strong>, <p>, <ul>, <li>) เพื่อให้อ่านง่ายและสวยงาม โดยเน้นสีทองให้จุดสำคัญ ห้ามใช้ Markdown (เช่น ** หรือ *) เด็ดขาด" 
+                    }] 
+                }
+            };
+
+            const delays = [1000, 2000, 4000, 8000, 16000]; // ระบบสุ่มเรียกซ้ำหากเครือข่ายมีปัญหา (Exponential Backoff)
+            for (let attempt = 0; attempt < 5; attempt++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const result = await response.json();
+                    return result.candidates?.[0]?.content?.parts?.[0]?.text || "<p>ขออภัย หมอซีคไม่สามารถรับข้อความจากจักรวาลได้ในขณะนี้ โปรดลองใหม่อีกครั้ง</p>";
+                } catch (error) {
+                    if (attempt === 4) return "<p>เกิดข้อผิดพลาดในการเชื่อมต่อกับจักรวาล (API Error) โปรดลองตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วทำนายใหม่อีกครั้ง</p>";
+                    await new Promise(resolve => setTimeout(resolve, delays[attempt]));
+                }
+            }
+        }
+
+        async function showSummary() {
             const summaryBox = document.getElementById('summaryBox');
             const summaryText = document.getElementById('summaryText');
             
-            let htmlContent = "";
-
-            // 1. ดึงความหมายจากไพ่ตำแหน่งสำคัญ (Key Positional Analysis) แม่นยำตามหน้าไพ่จริง
-            let keyAnalysis = "<strong>🎯 บทสรุปเจาะลึกจากหน้าไพ่สำคัญ (อิงตามหน้าไพ่จริง):</strong><br>";
-            
-            if (currentSpreadLimit === 1) {
-                keyAnalysis += `ไพ่ <strong>${drawnCardsData[0].name}</strong> สะท้อนคำทำนายหลักว่า: <br>"${drawnCardsData[0].meaning}"<br><br>`;
-            } else if (currentSpreadLimit === 3) {
-                keyAnalysis += `• <strong>สถานการณ์ปัจจุบัน:</strong> ไพ่ ${drawnCardsData[1].name} ชี้ว่า "${drawnCardsData[1].meaning}"<br>`;
-                keyAnalysis += `• <strong>แนวโน้มอนาคต:</strong> ไพ่บทสรุป ${drawnCardsData[2].name} ทำนายว่า "${drawnCardsData[2].meaning}"<br><br>`;
-            } else if (currentSpreadLimit === 5) {
-                keyAnalysis += `• <strong>คำแนะนำจากไพ่:</strong> ไพ่ ${drawnCardsData[3].name} แนะนำว่า "${drawnCardsData[3].meaning}"<br>`;
-                keyAnalysis += `• <strong>บทสรุปความสัมพันธ์:</strong> ไพ่ ${drawnCardsData[4].name} ชี้ชัดถึงผลลัพธ์ว่า "${drawnCardsData[4].meaning}"<br><br>`;
-            } else if (currentSpreadLimit === 6) {
-                keyAnalysis += `• <strong>ผลลัพธ์ที่จะเกิดขึ้น:</strong> จากการตัดสินใจครั้งนี้ ไพ่ใบสรุป ${drawnCardsData[5].name} ทำนายว่า "${drawnCardsData[5].meaning}"<br><br>`;
-            } else if (currentSpreadLimit === 10) {
-                keyAnalysis += `• <strong>อุปสรรคที่ขัดขวาง:</strong> ไพ่ ${drawnCardsData[1].name} เตือนให้ระวังเรื่อง "${drawnCardsData[1].meaning}"<br>`;
-                keyAnalysis += `• <strong>เป้าหมายที่คาดหวัง:</strong> ไพ่ ${drawnCardsData[4].name} บ่งบอกถึง "${drawnCardsData[4].meaning}"<br>`;
-                keyAnalysis += `• <strong>บทสรุปภาพรวมทั้งหมด:</strong> ไพ่ชี้ชะตา ${drawnCardsData[9].name} สรุปผลลัพธ์สุดท้ายว่า "${drawnCardsData[9].meaning}"<br><br>`;
-            }
-
-            htmlContent += keyAnalysis;
-
-            // 2. วิเคราะห์พลังงานภาพรวม (Overall Energy)
-            let energyText = "";
-            let scoreRatio = totalScore / currentSpreadLimit;
-
-            if (scoreRatio >= 0.5) {
-                energyText = "ดวงชะตาของคุณในขณะนี้เปิดรับพลังงานเชิงบวกอย่างเต็มเปี่ยม สิ่งที่คาดหวังมีโอกาสประสบความสำเร็จสูง ขอให้คุณลงมือทำด้วยความมั่นใจ";
-            } else if (scoreRatio <= -0.3) {
-                energyText = "กระแสพลังงานในช่วงนี้ค่อนข้างท้าทาย ไพ่เตือนให้คุณใช้ความระมัดระวัง หลีกเลี่ยงความขัดแย้ง ทุกอุปสรรคคือบททดสอบเพื่อให้คุณแข็งแกร่งขึ้น";
-            } else {
-                energyText = "พลังงานภาพรวมอยู่ในสภาวะสมดุลและเป็นกลาง บ่งบอกว่าผลลัพธ์ของสถานการณ์นี้ขึ้นอยู่กับการกระทำและการตัดสินใจของคุณในปัจจุบันเป็นหลัก";
-            }
-
-            htmlContent += `<strong>🔮 พลังงานภาพรวม:</strong> ${energyText}<br><br>`;
-
-            // 3. วิเคราะห์อิทธิพลของธาตุ (Suit Analysis)
-            if (currentSpreadLimit > 1) {
-                let counts = { major: 0, wands: 0, cups: 0, swords: 0, pentacles: 0 };
-                drawnCardsData.forEach(card => counts[card.type]++);
-
-                let dominantSuit = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-                
-                let suitText = "";
-                if (counts[dominantSuit] < 2 && currentSpreadLimit < 10) {
-                    suitText = "ไพ่มีความหลากหลายของธาตุผสมผสานกัน สถานการณ์ที่คุณเผชิญมีความเกี่ยวข้องทั้งเรื่องอารมณ์ เหตุผล และการลงมือทำ";
-                } else {
-                    switch (dominantSuit) {
-                        case 'major':
-                            suitText = "มี <strong>ไพ่ชุดหลัก (Major Arcana)</strong> ปรากฏขึ้นมาก บ่งบอกว่าคุณกำลังอยู่ใน 'จุดเปลี่ยนสำคัญ' ชะตาชีวิตและเหตุการณ์ภายนอกมีอิทธิพลสูงต่อคุณในช่วงนี้";
-                            break;
-                        case 'wands':
-                            suitText = "อิทธิพลของ <strong>ไพ่ไม้เท้า (Wands)</strong> โดดเด่น สะท้อนถึงช่วงเวลาแห่งการลงมือทำ แพชชั่น ความมุ่งมั่น และความท้าทายที่ต้องใช้พลังงานอย่างมากในการฝ่าฟัน";
-                            break;
-                        case 'cups':
-                            suitText = "อิทธิพลของ <strong>ไพ่ถ้วย (Cups)</strong> โดดเด่น เรื่องราวของอารมณ์ ความรู้สึก ความสัมพันธ์ และความรัก จะเป็นประเด็นหลักที่ส่งผลกระทบต่อจิตใจของคุณในช่วงนี้";
-                            break;
-                        case 'swords':
-                            suitText = "อิทธิพลของ <strong>ไพ่ดาบ (Swords)</strong> โดดเด่น บ่งชี้ถึงการใช้ความคิดอย่างหนัก การเผชิญหน้ากับความจริง การสื่อสาร หรืออุปสรรคที่ต้องใช้สติปัญญาความเด็ดขาดในการตัดจบปัญหา";
-                            break;
-                        case 'pentacles':
-                            suitText = "อิทธิพลของ <strong>ไพ่เหรียญ (Pentacles)</strong> โดดเด่น สถานการณ์ของคุณผูกพันกับเรื่องความเป็นจริง ความมั่นคง ทรัพย์สิน การเงิน หรืองานที่ต้องอาศัยความอดทนเพื่อหวังผลระยะยาว";
-                            break;
-                    }
-                }
-                htmlContent += `<strong>🌟 อิทธิพลธาตุที่โดดเด่น:</strong> ${suitText}`;
-            }
-
-            summaryText.innerHTML = htmlContent;
+            // 1. แสดงสถานะกำลังโหลด (ให้ AI คิด)
+            summaryText.innerHTML = `<div class="loading-pulse">✨ หมอซีคกำลังเพ่งกระแสจิตและสื่อสารกับจักรวาลเพื่ออ่านดวงชะตาของคุณ... ✨</div>`;
             summaryBox.style.display = 'block';
             summaryBox.animate([ { opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'translateY(0)' } ], { duration: 800, fill: 'forwards' });
             
             setTimeout(() => {
                 summaryBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
+
+            // 2. เตรียมข้อมูล (Prompt) ส่งให้ AI วิเคราะห์
+            let spreadName = document.getElementById('spreadType').options[document.getElementById('spreadType').selectedIndex].text;
+            let prompt = `ผู้รับคำทำนายเลือกเปิดไพ่แบบ: ${spreadName}\n\nไพ่ที่จับได้เรียงตามตำแหน่งมีดังนี้:\n`;
+            
+            drawnCardsData.forEach((card, i) => {
+                prompt += `- ตำแหน่ง ${currentPositions[i]}: ได้ไพ่ ${card.name} (ความหมายหลัก: ${card.meaning})\n`;
+            });
+
+            prompt += `\nโปรดวิเคราะห์ความเชื่อมโยงของไพ่ทั้งหมด อธิบายเหตุและผล สรุปคำทำนายอย่างละเอียด แม่นยำ และให้คำแนะนำในการดำเนินชีวิตที่นำไปใช้ได้จริง`;
+
+            // 3. เรียกใช้ AI
+            const aiResponse = await fetchGeminiReading(prompt);
+            
+            // 4. แสดงผลลัพธ์คำทำนายของจริง
+            summaryText.innerHTML = aiResponse;
         }
     </script>
 </body>
