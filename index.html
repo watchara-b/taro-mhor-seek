@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔮 Tarot Reader Pro 🔮</title>
+    <title>🔮 Tarot By Mhor Seek 🔮</title>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #0b0c10; color: #c5c6c7; text-align: center; padding: 20px; margin: 0; }
         .container { max-width: 900px; margin: 0 auto; background-color: #1f2833; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); box-sizing: border-box; }
@@ -24,7 +24,6 @@
             width: 48px; 
             height: 75px; 
             background-color: #0b0c10;
-            /* ลวดลายเรขาคณิตศักดิ์สิทธิ์ด้วย SVG */
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 0 L24 12 L12 24 L0 12 Z' fill='none' stroke='%23d4af37' stroke-width='0.5' opacity='0.35'/%3E%3Ccircle cx='12' cy='12' r='7' fill='none' stroke='%23d4af37' stroke-width='0.5' opacity='0.35'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23d4af37' opacity='0.5'/%3E%3C/svg%3E");
             background-size: 24px 24px;
             border: 2px solid #d4af37; 
@@ -80,9 +79,9 @@
         .card-name { font-size: 15px; font-weight: bold; color: #fff; margin-bottom: 8px; }
         .card-meaning { font-size: 13px; color: #c5c6c7; line-height: 1.5; text-align: left; }
 
-        .summary-box { margin-top: 30px; padding: 25px; background-color: #111; color: #d4af37; border: 1px solid #d4af37; border-radius: 10px; display: none; text-align: left; line-height: 1.6; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
-        .summary-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; text-align: center; }
-        .summary-text { color: #fff; }
+        .summary-box { margin-top: 30px; padding: 25px; background-color: #111; color: #c5c6c7; border: 1px solid #d4af37; border-radius: 10px; display: none; text-align: left; line-height: 1.8; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+        .summary-title { font-size: 22px; font-weight: bold; margin-bottom: 15px; text-align: center; color: #d4af37; }
+        .summary-text strong { color: #f1c40f; }
 
         @media (max-width: 600px) { .cards-layout { flex-direction: column; align-items: center; } .card-item { max-width: 100%; width: 100%; } }
     </style>
@@ -90,7 +89,7 @@
 <body>
 
     <div class="container">
-        <h1>🔮 Tarot Reader Pro 🔮</h1>
+        <h1>🔮 Tarot By Mhor Seek 🔮</h1>
         
         <div class="sacred-warning">
             <strong>⚠️ ข้อควรระวังก่อนเปิดไพ่:</strong><br>
@@ -116,7 +115,7 @@
         <div class="cards-layout" id="cardsContainer"></div>
 
         <div class="summary-box" id="summaryBox">
-            <div class="summary-title">✨ บทสรุปดวงชะตาของคุณ ✨</div>
+            <div class="summary-title">✨ บทวิเคราะห์และสรุปคำทำนาย ✨</div>
             <div class="summary-text" id="summaryText"></div>
         </div>
     </div>
@@ -126,92 +125,92 @@
 
         const tarotDeck = [
             // --- MAJOR ARCANA ---
-            { name: "0 - The Fool", score: 1, image: getUrl("RWS_Tarot_00_Fool.jpg"), meaning: "การเริ่มต้นใหม่ อิสระ การผจญภัย ความไร้เดียงสา ปล่อยวางความกังวล" },
-            { name: "I - The Magician", score: 1, image: getUrl("RWS_Tarot_01_Magician.jpg"), meaning: "ศักยภาพ ทักษะ การสื่อสาร ความสำเร็จจากการลงมือทำด้วยตัวเอง" },
-            { name: "II - The High Priestess", score: 0, image: getUrl("RWS_Tarot_02_High_Priestess.jpg"), meaning: "ลางสังหรณ์ ความลับ ความนิ่งสงบ การใช้สติปัญญาและสัญชาตญาณ" },
-            { name: "III - The Empress", score: 1, image: getUrl("RWS_Tarot_03_Empress.jpg"), meaning: "ความอุดมสมบูรณ์ ความรัก ความเมตตา การเติบโตงอกงาม" },
-            { name: "IV - The Emperor", score: 1, image: getUrl("RWS_Tarot_04_Emperor.jpg"), meaning: "อำนาจ ความมั่นคง ระเบียบวินัย ความเป็นผู้นำและการปกครอง" },
-            { name: "V - The Hierophant", score: 0, image: getUrl("RWS_Tarot_05_Hierophant.jpg"), meaning: "ประเพณี ความเชื่อ ครูบาอาจารย์ การชี้แนะ หรือการแต่งงาน" },
-            { name: "VI - The Lovers", score: 1, image: getUrl("RWS_Tarot_06_Lovers.jpg"), meaning: "ความรัก ความสัมพันธ์ การดึงดูด และการตัดสินใจเลือกทางที่ใช่" },
-            { name: "VII - The Chariot", score: 1, image: getUrl("RWS_Tarot_07_Chariot.jpg"), meaning: "ชัยชนะ ความมุ่งมั่น การเดินทาง การฝ่าฟันอุปสรรคด้วยความตั้งใจ" },
-            { name: "VIII - Strength", score: 1, image: getUrl("RWS_Tarot_08_Strength.jpg"), meaning: "ความกล้าหาญ ความอดทน การเอาชนะอุปสรรคด้วยความนุ่มนวลและเมตตา" },
-            { name: "IX - The Hermit", score: 0, image: getUrl("RWS_Tarot_09_Hermit.jpg"), meaning: "การปลีกวิเวก ค้นหาความจริงในตัวเอง ความรอบคอบ และคำแนะนำ" },
-            { name: "X - Wheel of Fortune", score: 1, image: getUrl("RWS_Tarot_10_Wheel_of_Fortune.jpg"), meaning: "วัฏจักร โชคชะตา โอกาสใหม่ๆ การเปลี่ยนแปลงไปในทางที่ดีขึ้น" },
-            { name: "XI - Justice", score: 0, image: getUrl("RWS_Tarot_11_Justice.jpg"), meaning: "ความยุติธรรม ความสมดุล กฎหมาย เหตุและผล ทำสิ่งใดได้สิ่งนั้น" },
-            { name: "XII - The Hanged Man", score: -1, image: getUrl("RWS_Tarot_12_Hanged_Man.jpg"), meaning: "การเสียสละ การหยุดนิ่งเพื่อทบทวน มุมมองที่แตกต่าง หรือความล่าช้า" },
-            { name: "XIII - Death", score: -1, image: getUrl("RWS_Tarot_13_Death.jpg"), meaning: "การสิ้นสุดเพื่อเริ่มต้นใหม่ การเปลี่ยนแปลงครั้งใหญ่ การปล่อยวางอดีต" },
-            { name: "XIV - Temperance", score: 0, image: getUrl("RWS_Tarot_14_Temperance.jpg"), meaning: "การประนีประนอม การโยกย้าย การรักษาสมดุล และการปรับตัว" },
-            { name: "XV - The Devil", score: -1, image: getUrl("RWS_Tarot_15_Devil.jpg"), meaning: "กิเลส ความลุ่มหลง การยึดติด ภาระผูกพัน หรืออุปสรรคจากความกลัว" },
-            { name: "XVI - The Tower", score: -1, image: getUrl("RWS_Tarot_16_Tower.jpg"), meaning: "เหตุการณ์ไม่คาดฝัน การพังทลายของสิ่งเดิมเพื่อสร้างรากฐานใหม่" },
-            { name: "XVII - The Star", score: 1, image: getUrl("RWS_Tarot_17_Star.jpg"), meaning: "ความหวัง แรงบันดาลใจ การเยียวยารักษา และความสงบสุข" },
-            { name: "XVIII - The Moon", score: -1, image: getUrl("RWS_Tarot_18_Moon.jpg"), meaning: "ความวิตกกังวล ภาพลวงตา ความสับสน และเรื่องที่ยังไม่ชัดเจน" },
-            { name: "XIX - The Sun", score: 1, image: getUrl("RWS_Tarot_19_Sun.jpg"), meaning: "ความสุข ความสำเร็จ พลังงานบวกล้นหลาม อุปสรรคถูกปัดเป่า ชัยชนะ" },
-            { name: "XX - Judgement", score: 0, image: getUrl("RWS_Tarot_20_Judgement.jpg"), meaning: "การตื่นรู้ การตัดสินผลของการกระทำ การได้รับโอกาสครั้งที่สอง" },
-            { name: "XXI - The World", score: 1, image: getUrl("RWS_Tarot_21_World.jpg"), meaning: "ความสมบูรณ์แบบ ความสำเร็จสูงสุด การจบรอบวัฏจักรเพื่อก้าวสู่อีกขั้น" },
+            { name: "0 - The Fool", score: 1, type: "major", image: getUrl("RWS_Tarot_00_Fool.jpg"), meaning: "การเริ่มต้นใหม่ อิสระ การผจญภัย ความไร้เดียงสา ปล่อยวางความกังวล" },
+            { name: "I - The Magician", score: 1, type: "major", image: getUrl("RWS_Tarot_01_Magician.jpg"), meaning: "ศักยภาพ ทักษะ การสื่อสาร ความสำเร็จจากการลงมือทำด้วยตัวเอง" },
+            { name: "II - The High Priestess", score: 0, type: "major", image: getUrl("RWS_Tarot_02_High_Priestess.jpg"), meaning: "ลางสังหรณ์ ความลับ ความนิ่งสงบ การใช้สติปัญญาและสัญชาตญาณ" },
+            { name: "III - The Empress", score: 1, type: "major", image: getUrl("RWS_Tarot_03_Empress.jpg"), meaning: "ความอุดมสมบูรณ์ ความรัก ความเมตตา การเติบโตงอกงาม" },
+            { name: "IV - The Emperor", score: 1, type: "major", image: getUrl("RWS_Tarot_04_Emperor.jpg"), meaning: "อำนาจ ความมั่นคง ระเบียบวินัย ความเป็นผู้นำและการปกครอง" },
+            { name: "V - The Hierophant", score: 0, type: "major", image: getUrl("RWS_Tarot_05_Hierophant.jpg"), meaning: "ประเพณี ความเชื่อ ครูบาอาจารย์ การชี้แนะ หรือการแต่งงาน" },
+            { name: "VI - The Lovers", score: 1, type: "major", image: getUrl("RWS_Tarot_06_Lovers.jpg"), meaning: "ความรัก ความสัมพันธ์ การดึงดูด และการตัดสินใจเลือกทางที่ใช่" },
+            { name: "VII - The Chariot", score: 1, type: "major", image: getUrl("RWS_Tarot_07_Chariot.jpg"), meaning: "ชัยชนะ ความมุ่งมั่น การเดินทาง การฝ่าฟันอุปสรรคด้วยความตั้งใจ" },
+            { name: "VIII - Strength", score: 1, type: "major", image: getUrl("RWS_Tarot_08_Strength.jpg"), meaning: "ความกล้าหาญ ความอดทน การเอาชนะอุปสรรคด้วยความนุ่มนวลและเมตตา" },
+            { name: "IX - The Hermit", score: 0, type: "major", image: getUrl("RWS_Tarot_09_Hermit.jpg"), meaning: "การปลีกวิเวก ค้นหาความจริงในตัวเอง ความรอบคอบ และคำแนะนำ" },
+            { name: "X - Wheel of Fortune", score: 1, type: "major", image: getUrl("RWS_Tarot_10_Wheel_of_Fortune.jpg"), meaning: "วัฏจักร โชคชะตา โอกาสใหม่ๆ การเปลี่ยนแปลงไปในทางที่ดีขึ้น" },
+            { name: "XI - Justice", score: 0, type: "major", image: getUrl("RWS_Tarot_11_Justice.jpg"), meaning: "ความยุติธรรม ความสมดุล กฎหมาย เหตุและผล ทำสิ่งใดได้สิ่งนั้น" },
+            { name: "XII - The Hanged Man", score: -1, type: "major", image: getUrl("RWS_Tarot_12_Hanged_Man.jpg"), meaning: "การเสียสละ การหยุดนิ่งเพื่อทบทวน มุมมองที่แตกต่าง หรือความล่าช้า" },
+            { name: "XIII - Death", score: -1, type: "major", image: getUrl("RWS_Tarot_13_Death.jpg"), meaning: "การสิ้นสุดเพื่อเริ่มต้นใหม่ การเปลี่ยนแปลงครั้งใหญ่ การปล่อยวางอดีต" },
+            { name: "XIV - Temperance", score: 0, type: "major", image: getUrl("RWS_Tarot_14_Temperance.jpg"), meaning: "การประนีประนอม การโยกย้าย การรักษาสมดุล และการปรับตัว" },
+            { name: "XV - The Devil", score: -1, type: "major", image: getUrl("RWS_Tarot_15_Devil.jpg"), meaning: "กิเลส ความลุ่มหลง การยึดติด ภาระผูกพัน หรืออุปสรรคจากความกลัว" },
+            { name: "XVI - The Tower", score: -1, type: "major", image: getUrl("RWS_Tarot_16_Tower.jpg"), meaning: "เหตุการณ์ไม่คาดฝัน การพังทลายของสิ่งเดิมเพื่อสร้างรากฐานใหม่" },
+            { name: "XVII - The Star", score: 1, type: "major", image: getUrl("RWS_Tarot_17_Star.jpg"), meaning: "ความหวัง แรงบันดาลใจ การเยียวยารักษา และความสงบสุข" },
+            { name: "XVIII - The Moon", score: -1, type: "major", image: getUrl("RWS_Tarot_18_Moon.jpg"), meaning: "ความวิตกกังวล ภาพลวงตา ความสับสน และเรื่องที่ยังไม่ชัดเจน" },
+            { name: "XIX - The Sun", score: 1, type: "major", image: getUrl("RWS_Tarot_19_Sun.jpg"), meaning: "ความสุข ความสำเร็จ พลังงานบวกล้นหลาม อุปสรรคถูกปัดเป่า ชัยชนะ" },
+            { name: "XX - Judgement", score: 0, type: "major", image: getUrl("RWS_Tarot_20_Judgement.jpg"), meaning: "การตื่นรู้ การตัดสินผลของการกระทำ การได้รับโอกาสครั้งที่สอง" },
+            { name: "XXI - The World", score: 1, type: "major", image: getUrl("RWS_Tarot_21_World.jpg"), meaning: "ความสมบูรณ์แบบ ความสำเร็จสูงสุด การจบรอบวัฏจักรเพื่อก้าวสู่อีกขั้น" },
 
             // --- WANDS (ไม้เท้า) ---
-            { name: "Ace of Wands", score: 1, image: getUrl("Wands01.jpg"), meaning: "แรงบันดาลใจใหม่ โอกาสเรื่องงานหรือโปรเจกต์ใหม่ที่น่าตื่นเต้น" },
-            { name: "2 of Wands", score: 1, image: getUrl("Wands02.jpg"), meaning: "การวางแผนอนาคต การมองการณ์ไกล และการตัดสินใจเลือกเส้นทาง" },
-            { name: "3 of Wands", score: 1, image: getUrl("Wands03.jpg"), meaning: "การขยายตัว ความก้าวหน้า การรอคอยผลลัพธ์ที่กำลังจะมาถึง" },
-            { name: "4 of Wands", score: 1, image: getUrl("Wands04.jpg"), meaning: "ความมั่นคง ความสำเร็จในระยะแรก การเฉลิมฉลอง และครอบครัว" },
-            { name: "5 of Wands", score: -1, image: getUrl("Wands05.jpg"), meaning: "ความขัดแย้ง การแข่งขัน ความวุ่นวายเล็กๆ น้อยๆ ที่ต้องจัดการ" },
-            { name: "6 of Wands", score: 1, image: getUrl("Wands06.jpg"), meaning: "ชัยชนะ การได้รับการยอมรับ ความสำเร็จที่มาจากความพยายาม" },
-            { name: "7 of Wands", score: 0, image: getUrl("Wands07.jpg"), meaning: "การยืนหยัดต่อสู้ การปกป้องจุดยืนของตนเองท่ามกลางอุปสรรค" },
-            { name: "8 of Wands", score: 1, image: getUrl("Wands08.jpg"), meaning: "ความรวดเร็ว ข่าวสาร การเดินทาง การเปลี่ยนแปลงที่เกิดขึ้นอย่างไว" },
-            { name: "9 of Wands", score: 0, image: getUrl("Wands09.jpg"), meaning: "ความเหน็ดเหนื่อยแต่ไม่ยอมแพ้ ความระแวดระวังจากบาดแผลในอดีต" },
-            { name: "10 of Wands", score: -1, image: getUrl("Wands10.jpg"), meaning: "ภาระหนัก ความรับผิดชอบที่มากเกินไป การแบกรับทุกอย่างไว้คนเดียว" },
-            { name: "Page of Wands", score: 1, image: getUrl("Wands11.jpg"), meaning: "ข่าวดีเรื่องงาน ความกระตือรือร้น คนอายุน้อยที่นำไฟในการทำงานมาให้" },
-            { name: "Knight of Wands", score: 1, image: getUrl("Wands12.jpg"), meaning: "ความมุ่งมั่น พลังงานล้นเหลือ การลุยไปข้างหน้าอย่างไม่เกรงกลัว" },
-            { name: "Queen of Wands", score: 1, image: getUrl("Wands13.jpg"), meaning: "ความมีเสน่ห์ ความมั่นใจในตัวเอง ผู้หญิงเก่งที่จัดการชีวิตได้ดี" },
-            { name: "King of Wands", score: 1, image: getUrl("Wands14.jpg"), meaning: "ความเป็นผู้นำ วิสัยทัศน์ที่กว้างไกล ผู้ชายที่มีอำนาจและประสบความสำเร็จ" },
+            { name: "Ace of Wands", score: 1, type: "wands", image: getUrl("Wands01.jpg"), meaning: "แรงบันดาลใจใหม่ โอกาสเรื่องงานหรือโปรเจกต์ใหม่ที่น่าตื่นเต้น" },
+            { name: "2 of Wands", score: 1, type: "wands", image: getUrl("Wands02.jpg"), meaning: "การวางแผนอนาคต การมองการณ์ไกล และการตัดสินใจเลือกเส้นทาง" },
+            { name: "3 of Wands", score: 1, type: "wands", image: getUrl("Wands03.jpg"), meaning: "การขยายตัว ความก้าวหน้า การรอคอยผลลัพธ์ที่กำลังจะมาถึง" },
+            { name: "4 of Wands", score: 1, type: "wands", image: getUrl("Wands04.jpg"), meaning: "ความมั่นคง ความสำเร็จในระยะแรก การเฉลิมฉลอง และครอบครัว" },
+            { name: "5 of Wands", score: -1, type: "wands", image: getUrl("Wands05.jpg"), meaning: "ความขัดแย้ง การแข่งขัน ความวุ่นวายเล็กๆ น้อยๆ ที่ต้องจัดการ" },
+            { name: "6 of Wands", score: 1, type: "wands", image: getUrl("Wands06.jpg"), meaning: "ชัยชนะ การได้รับการยอมรับ ความสำเร็จที่มาจากความพยายาม" },
+            { name: "7 of Wands", score: 0, type: "wands", image: getUrl("Wands07.jpg"), meaning: "การยืนหยัดต่อสู้ การปกป้องจุดยืนของตนเองท่ามกลางอุปสรรค" },
+            { name: "8 of Wands", score: 1, type: "wands", image: getUrl("Wands08.jpg"), meaning: "ความรวดเร็ว ข่าวสาร การเดินทาง การเปลี่ยนแปลงที่เกิดขึ้นอย่างไว" },
+            { name: "9 of Wands", score: 0, type: "wands", image: getUrl("Wands09.jpg"), meaning: "ความเหน็ดเหนื่อยแต่ไม่ยอมแพ้ ความระแวดระวังจากบาดแผลในอดีต" },
+            { name: "10 of Wands", score: -1, type: "wands", image: getUrl("Wands10.jpg"), meaning: "ภาระหนัก ความรับผิดชอบที่มากเกินไป การแบกรับทุกอย่างไว้คนเดียว" },
+            { name: "Page of Wands", score: 1, type: "wands", image: getUrl("Wands11.jpg"), meaning: "ข่าวดีเรื่องงาน ความกระตือรือร้น คนอายุน้อยที่นำไฟในการทำงานมาให้" },
+            { name: "Knight of Wands", score: 1, type: "wands", image: getUrl("Wands12.jpg"), meaning: "ความมุ่งมั่น พลังงานล้นเหลือ การลุยไปข้างหน้าอย่างไม่เกรงกลัว" },
+            { name: "Queen of Wands", score: 1, type: "wands", image: getUrl("Wands13.jpg"), meaning: "ความมีเสน่ห์ ความมั่นใจในตัวเอง ผู้หญิงเก่งที่จัดการชีวิตได้ดี" },
+            { name: "King of Wands", score: 1, type: "wands", image: getUrl("Wands14.jpg"), meaning: "ความเป็นผู้นำ วิสัยทัศน์ที่กว้างไกล ผู้ชายที่มีอำนาจและประสบความสำเร็จ" },
 
             // --- CUPS (ถ้วย) ---
-            { name: "Ace of Cups", score: 1, image: getUrl("Cups01.jpg"), meaning: "ความรักครั้งใหม่ ความรู้สึกเอ่อล้น โอกาสดีๆ ทางด้านอารมณ์" },
-            { name: "2 of Cups", score: 1, image: getUrl("Cups02.jpg"), meaning: "ความเข้าใจ ความสัมพันธ์ที่สมดุล การตกลงร่วมมือ ความรักที่ลงตัว" },
-            { name: "3 of Cups", score: 1, image: getUrl("Cups03.jpg"), meaning: "มิตรภาพ การเฉลิมฉลอง การพบปะสังสรรค์ ความสุขร่วมกับผู้อื่น" },
-            { name: "4 of Cups", score: 0, image: getUrl("Cups04.jpg"), meaning: "ความเบื่อหน่าย การปฏิเสธโอกาส มัวแต่สนใจอดีตจนมองไม่เห็นสิ่งใหม่" },
-            { name: "5 of Cups", score: -1, image: getUrl("Cups05.jpg"), meaning: "ความสูญเสีย ความเศร้าโศกเสียใจกับสิ่งที่ผ่านไปแล้ว" },
-            { name: "6 of Cups", score: 1, image: getUrl("Cups06.jpg"), meaning: "ความทรงจำในอดีต คนรักเก่ากลับมา ความไร้เดียงสา ความผูกพัน" },
-            { name: "7 of Cups", score: 0, image: getUrl("Cups07.jpg"), meaning: "ทางเลือกมากมาย ความเพ้อฝัน การต้องตัดสินใจเลือกสิ่งที่เป็นจริง" },
-            { name: "8 of Cups", score: -1, image: getUrl("Cups08.jpg"), meaning: "การเดินจากลา การทิ้งสิ่งที่เคยสร้างมาเพื่อค้นหาความหมายที่ลึกซึ้งกว่า" },
-            { name: "9 of Cups", score: 1, image: getUrl("Cups09.jpg"), meaning: "ความพึงพอใจ ความปรารถนาที่เป็นจริง ไพ่แห่งความสมหวัง" },
-            { name: "10 of Cups", score: 1, image: getUrl("Cups10.jpg"), meaning: "ความสุขสมบูรณ์ในครอบครัว ความรักที่ยั่งยืน จุดหมายสูงสุดทางอารมณ์" },
-            { name: "Page of Cups", score: 1, image: getUrl("Cups11.jpg"), meaning: "ข่าวดีเรื่องความรัก การเริ่มต้นความรู้สึกดีๆ ความอ่อนโยน" },
-            { name: "Knight of Cups", score: 1, image: getUrl("Cups12.jpg"), meaning: "การนำเสนอความรัก ความโรแมนติก คนที่เข้ามาจีบหรือหยิบยื่นไมตรี" },
-            { name: "Queen of Cups", score: 1, image: getUrl("Cups13.jpg"), meaning: "ความเมตตา ความเห็นอกเห็นใจ ผู้หญิงที่ใช้อารมณ์และความรู้สึกนำทาง" },
-            { name: "King of Cups", score: 1, image: getUrl("Cups14.jpg"), meaning: "การควบคุมอารมณ์ได้ดี ความนิ่งสงบ ผู้ใหญ่ที่ใจดีและให้คำปรึกษาได้" },
+            { name: "Ace of Cups", score: 1, type: "cups", image: getUrl("Cups01.jpg"), meaning: "ความรักครั้งใหม่ ความรู้สึกเอ่อล้น โอกาสดีๆ ทางด้านอารมณ์" },
+            { name: "2 of Cups", score: 1, type: "cups", image: getUrl("Cups02.jpg"), meaning: "ความเข้าใจ ความสัมพันธ์ที่สมดุล การตกลงร่วมมือ ความรักที่ลงตัว" },
+            { name: "3 of Cups", score: 1, type: "cups", image: getUrl("Cups03.jpg"), meaning: "มิตรภาพ การเฉลิมฉลอง การพบปะสังสรรค์ ความสุขร่วมกับผู้อื่น" },
+            { name: "4 of Cups", score: 0, type: "cups", image: getUrl("Cups04.jpg"), meaning: "ความเบื่อหน่าย การปฏิเสธโอกาส มัวแต่สนใจอดีตจนมองไม่เห็นสิ่งใหม่" },
+            { name: "5 of Cups", score: -1, type: "cups", image: getUrl("Cups05.jpg"), meaning: "ความสูญเสีย ความเศร้าโศกเสียใจกับสิ่งที่ผ่านไปแล้ว" },
+            { name: "6 of Cups", score: 1, type: "cups", image: getUrl("Cups06.jpg"), meaning: "ความทรงจำในอดีต คนรักเก่ากลับมา ความไร้เดียงสา ความผูกพัน" },
+            { name: "7 of Cups", score: 0, type: "cups", image: getUrl("Cups07.jpg"), meaning: "ทางเลือกมากมาย ความเพ้อฝัน การต้องตัดสินใจเลือกสิ่งที่เป็นจริง" },
+            { name: "8 of Cups", score: -1, type: "cups", image: getUrl("Cups08.jpg"), meaning: "การเดินจากลา การทิ้งสิ่งที่เคยสร้างมาเพื่อค้นหาความหมายที่ลึกซึ้งกว่า" },
+            { name: "9 of Cups", score: 1, type: "cups", image: getUrl("Cups09.jpg"), meaning: "ความพึงพอใจ ความปรารถนาที่เป็นจริง ไพ่แห่งความสมหวัง" },
+            { name: "10 of Cups", score: 1, type: "cups", image: getUrl("Cups10.jpg"), meaning: "ความสุขสมบูรณ์ในครอบครัว ความรักที่ยั่งยืน จุดหมายสูงสุดทางอารมณ์" },
+            { name: "Page of Cups", score: 1, type: "cups", image: getUrl("Cups11.jpg"), meaning: "ข่าวดีเรื่องความรัก การเริ่มต้นความรู้สึกดีๆ ความอ่อนโยน" },
+            { name: "Knight of Cups", score: 1, type: "cups", image: getUrl("Cups12.jpg"), meaning: "การนำเสนอความรัก ความโรแมนติก คนที่เข้ามาจีบหรือหยิบยื่นไมตรี" },
+            { name: "Queen of Cups", score: 1, type: "cups", image: getUrl("Cups13.jpg"), meaning: "ความเมตตา ความเห็นอกเห็นใจ ผู้หญิงที่ใช้อารมณ์และความรู้สึกนำทาง" },
+            { name: "King of Cups", score: 1, type: "cups", image: getUrl("Cups14.jpg"), meaning: "การควบคุมอารมณ์ได้ดี ความนิ่งสงบ ผู้ใหญ่ที่ใจดีและให้คำปรึกษาได้" },
 
             // --- SWORDS (ดาบ) ---
-            { name: "Ace of Swords", score: 1, image: getUrl("Swords01.jpg"), meaning: "ความคิดทะลุปรุโปร่ง การตัดสินใจที่เด็ดขาด ชัยชนะด้วยสติปัญญา" },
-            { name: "2 of Swords", score: 0, image: getUrl("Swords02.jpg"), meaning: "ความลังเลใจ ทางสองแพร่ง การปิดกั้นตัวเองจากการรับรู้ปัญหา" },
-            { name: "3 of Swords", score: -1, image: getUrl("Swords03.jpg"), meaning: "ความเจ็บปวด ความเสียใจ ความขัดแย้ง หรือการเลิกรา" },
-            { name: "4 of Swords", score: 0, image: getUrl("Swords04.jpg"), meaning: "การพักฟื้น การหยุดพักจากความเครียดและปัญหาเพื่อฟื้นฟูจิตใจ" },
-            { name: "5 of Swords", score: -1, image: getUrl("Swords05.jpg"), meaning: "ชัยชนะที่สูญเสีย ความขัดแย้งที่ไม่มีใครได้ประโยชน์ที่แท้จริง" },
-            { name: "6 of Swords", score: 0, image: getUrl("Swords06.jpg"), meaning: "การเดินทางออกจากปัญหา สถานการณ์กำลังค่อยๆ ดีขึ้นอย่างช้าๆ" },
-            { name: "7 of Swords", score: -1, image: getUrl("Swords07.jpg"), meaning: "การหลบซ่อน การทำบางอย่างลับหลัง ความไม่ซื่อสัตย์ หรือการเลี่ยงปัญหา" },
-            { name: "8 of Swords", score: -1, image: getUrl("Swords08.jpg"), meaning: "ความรู้สึกถูกต้อนให้จนมุม หาทางออกไม่เจอ (ทั้งที่จริงอาจมีทางออก)" },
-            { name: "9 of Swords", score: -1, image: getUrl("Swords09.jpg"), meaning: "ความเครียด ความวิตกกังวล การนอนไม่หลับ การคิดมากไปเอง" },
-            { name: "10 of Swords", score: -1, image: getUrl("Swords10.jpg"), meaning: "จุดต่ำสุดของปัญหา ความเจ็บปวดขั้นสุด แต่มันกำลังจะจบลงเพื่อเริ่มใหม่" },
-            { name: "Page of Swords", score: 0, image: getUrl("Swords11.jpg"), meaning: "ความอยากรู้อยากเห็น ข่าวสารที่ต้องระวัง การสอดแนม ความฉลาดหลักแหลม" },
-            { name: "Knight of Swords", score: 0, image: getUrl("Swords12.jpg"), meaning: "ความหุนหันพลันแล่น การพุ่งเข้าชนปัญหาอย่างรวดเร็วและตรงไปตรงมา" },
-            { name: "Queen of Swords", score: 0, image: getUrl("Swords13.jpg"), meaning: "ความเด็ดขาด การใช้เหตุผลมากกว่าอารมณ์ ผู้หญิงที่เข้มแข็งและตรงไปตรงมา" },
-            { name: "King of Swords", score: 1, image: getUrl("Swords14.jpg"), meaning: "ความยุติธรรม การตัดสินใจที่มีหลักการ อำนาจที่มาจากสติปัญญา" },
+            { name: "Ace of Swords", score: 1, type: "swords", image: getUrl("Swords01.jpg"), meaning: "ความคิดทะลุปรุโปร่ง การตัดสินใจที่เด็ดขาด ชัยชนะด้วยสติปัญญา" },
+            { name: "2 of Swords", score: 0, type: "swords", image: getUrl("Swords02.jpg"), meaning: "ความลังเลใจ ทางสองแพร่ง การปิดกั้นตัวเองจากการรับรู้ปัญหา" },
+            { name: "3 of Swords", score: -1, type: "swords", image: getUrl("Swords03.jpg"), meaning: "ความเจ็บปวด ความเสียใจ ความขัดแย้ง หรือการเลิกรา" },
+            { name: "4 of Swords", score: 0, type: "swords", image: getUrl("Swords04.jpg"), meaning: "การพักฟื้น การหยุดพักจากความเครียดและปัญหาเพื่อฟื้นฟูจิตใจ" },
+            { name: "5 of Swords", score: -1, type: "swords", image: getUrl("Swords05.jpg"), meaning: "ชัยชนะที่สูญเสีย ความขัดแย้งที่ไม่มีใครได้ประโยชน์ที่แท้จริง" },
+            { name: "6 of Swords", score: 0, type: "swords", image: getUrl("Swords06.jpg"), meaning: "การเดินทางออกจากปัญหา สถานการณ์กำลังค่อยๆ ดีขึ้นอย่างช้าๆ" },
+            { name: "7 of Swords", score: -1, type: "swords", image: getUrl("Swords07.jpg"), meaning: "การหลบซ่อน การทำบางอย่างลับหลัง ความไม่ซื่อสัตย์ หรือการเลี่ยงปัญหา" },
+            { name: "8 of Swords", score: -1, type: "swords", image: getUrl("Swords08.jpg"), meaning: "ความรู้สึกถูกต้อนให้จนมุม หาทางออกไม่เจอ (ทั้งที่จริงอาจมีทางออก)" },
+            { name: "9 of Swords", score: -1, type: "swords", image: getUrl("Swords09.jpg"), meaning: "ความเครียด ความวิตกกังวล การนอนไม่หลับ การคิดมากไปเอง" },
+            { name: "10 of Swords", score: -1, type: "swords", image: getUrl("Swords10.jpg"), meaning: "จุดต่ำสุดของปัญหา ความเจ็บปวดขั้นสุด แต่มันกำลังจะจบลงเพื่อเริ่มใหม่" },
+            { name: "Page of Swords", score: 0, type: "swords", image: getUrl("Swords11.jpg"), meaning: "ความอยากรู้อยากเห็น ข่าวสารที่ต้องระวัง การสอดแนม ความฉลาดหลักแหลม" },
+            { name: "Knight of Swords", score: 0, type: "swords", image: getUrl("Swords12.jpg"), meaning: "ความหุนหันพลันแล่น การพุ่งเข้าชนปัญหาอย่างรวดเร็วและตรงไปตรงมา" },
+            { name: "Queen of Swords", score: 0, type: "swords", image: getUrl("Swords13.jpg"), meaning: "ความเด็ดขาด การใช้เหตุผลมากกว่าอารมณ์ ผู้หญิงที่เข้มแข็งและตรงไปตรงมา" },
+            { name: "King of Swords", score: 1, type: "swords", image: getUrl("Swords14.jpg"), meaning: "ความยุติธรรม การตัดสินใจที่มีหลักการ อำนาจที่มาจากสติปัญญา" },
 
             // --- PENTACLES (เหรียญ) ---
-            { name: "Ace of Pentacles", score: 1, image: getUrl("Pents01.jpg"), meaning: "โอกาสทางการเงินใหม่ๆ โชคลาภ การลงทุนที่ให้ผลตอบแทนดี" },
-            { name: "2 of Pentacles", score: 0, image: getUrl("Pents02.jpg"), meaning: "การหมุนเงิน การบริหารจัดการชีวิตหลายๆ ด้านให้สมดุล" },
-            { name: "3 of Pentacles", score: 1, image: getUrl("Pents03.jpg"), meaning: "การทำงานเป็นทีม การสร้างรากฐาน ทักษะที่ได้รับการยอมรับ" },
-            { name: "4 of Pentacles", score: 0, image: getUrl("Pents04.jpg"), meaning: "การหวงแหนทรัพย์สิน ความตระหนี่ ความกลัวที่จะสูญเสียความมั่นคง" },
-            { name: "5 of Pentacles", score: -1, image: getUrl("Pents05.jpg"), meaning: "ความขัดสน ปัญหาการเงิน ความรู้สึกโดดเดี่ยวหรือขาดที่พึ่ง" },
-            { name: "6 of Pentacles", score: 1, image: getUrl("Pents06.jpg"), meaning: "การให้และการรับ ความเอื้อเฟื้อเผื่อแผ่ การได้รับความช่วยเหลือทางการเงิน" },
-            { name: "7 of Pentacles", score: 0, image: getUrl("Pents07.jpg"), meaning: "การรอคอยผลผลิต การประเมินผลงานที่ลงทุนลงแรงไป" },
-            { name: "8 of Pentacles", score: 1, image: getUrl("Pents08.jpg"), meaning: "ความขยันหมั่นเพียร การมุ่งมั่นพัฒนาทักษะ การทำงานหนักที่คุ้มค่า" },
-            { name: "9 of Pentacles", score: 1, image: getUrl("Pents09.jpg"), meaning: "ความมั่งคั่ง ความสำเร็จที่สร้างมาด้วยตัวเอง การเสวยสุขในสิ่งที่ทำมา" },
-            { name: "10 of Pentacles", score: 1, image: getUrl("Pents10.jpg"), meaning: "ความมั่งคั่งระดับครอบครัว มรดก ความมั่นคงในระยะยาว ความสำเร็จสูงสุด" },
-            { name: "Page of Pentacles", score: 1, image: getUrl("Pents11.jpg"), meaning: "โอกาสในการเรียนรู้ใหม่ๆ ข่าวดีเรื่องเงินหรือการเรียน" },
-            { name: "Knight of Pentacles", score: 1, image: getUrl("Pents12.jpg"), meaning: "ความรับผิดชอบ การทำงานอย่างค่อยเป็นค่อยไปแต่มั่นคงและไว้ใจได้" },
-            { name: "Queen of Pentacles", score: 1, image: getUrl("Pents13.jpg"), meaning: "ความอุดมสมบูรณ์ ผู้หญิงที่เก่งทั้งเรื่องงานบ้านและการหาเงิน ดูแลคนอื่นดี" },
-            { name: "King of Pentacles", score: 1, image: getUrl("Pents14.jpg"), meaning: "ความมั่นคงสูงสุด นักธุรกิจที่ประสบความสำเร็จ ผู้นำที่มีฐานะมั่งคั่ง" }
+            { name: "Ace of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents01.jpg"), meaning: "โอกาสทางการเงินใหม่ๆ โชคลาภ การลงทุนที่ให้ผลตอบแทนดี" },
+            { name: "2 of Pentacles", score: 0, type: "pentacles", image: getUrl("Pents02.jpg"), meaning: "การหมุนเงิน การบริหารจัดการชีวิตหลายๆ ด้านให้สมดุล" },
+            { name: "3 of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents03.jpg"), meaning: "การทำงานเป็นทีม การสร้างรากฐาน ทักษะที่ได้รับการยอมรับ" },
+            { name: "4 of Pentacles", score: 0, type: "pentacles", image: getUrl("Pents04.jpg"), meaning: "การหวงแหนทรัพย์สิน ความตระหนี่ ความกลัวที่จะสูญเสียความมั่นคง" },
+            { name: "5 of Pentacles", score: -1, type: "pentacles", image: getUrl("Pents05.jpg"), meaning: "ความขัดสน ปัญหาการเงิน ความรู้สึกโดดเดี่ยวหรือขาดที่พึ่ง" },
+            { name: "6 of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents06.jpg"), meaning: "การให้และการรับ ความเอื้อเฟื้อเผื่อแผ่ การได้รับความช่วยเหลือทางการเงิน" },
+            { name: "7 of Pentacles", score: 0, type: "pentacles", image: getUrl("Pents07.jpg"), meaning: "การรอคอยผลผลิต การประเมินผลงานที่ลงทุนลงแรงไป" },
+            { name: "8 of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents08.jpg"), meaning: "ความขยันหมั่นเพียร การมุ่งมั่นพัฒนาทักษะ การทำงานหนักที่คุ้มค่า" },
+            { name: "9 of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents09.jpg"), meaning: "ความมั่งคั่ง ความสำเร็จที่สร้างมาด้วยตัวเอง การเสวยสุขในสิ่งที่ทำมา" },
+            { name: "10 of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents10.jpg"), meaning: "ความมั่งคั่งระดับครอบครัว มรดก ความมั่นคงในระยะยาว ความสำเร็จสูงสุด" },
+            { name: "Page of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents11.jpg"), meaning: "โอกาสในการเรียนรู้ใหม่ๆ ข่าวดีเรื่องเงินหรือการเรียน" },
+            { name: "Knight of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents12.jpg"), meaning: "ความรับผิดชอบ การทำงานอย่างค่อยเป็นค่อยไปแต่มั่นคงและไว้ใจได้" },
+            { name: "Queen of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents13.jpg"), meaning: "ความอุดมสมบูรณ์ ผู้หญิงที่เก่งทั้งเรื่องงานบ้านและการหาเงิน ดูแลคนอื่นดี" },
+            { name: "King of Pentacles", score: 1, type: "pentacles", image: getUrl("Pents14.jpg"), meaning: "ความมั่นคงสูงสุด นักธุรกิจที่ประสบความสำเร็จ ผู้นำที่มีฐานะมั่งคั่ง" }
         ];
 
         const spreads = {
@@ -229,10 +228,10 @@
         let currentSpreadLimit = 1;
         let drawnCardsCount = 0;
         let activeDeck = [];
+        let drawnCardsData = [];
         let totalScore = 0;
         let currentPositions = [];
 
-        // ฟังก์ชันสับไพ่แบบ Fisher-Yates (สุ่มจริง 100%)
         function shuffleDeck(deck) {
             let shuffled = [...deck];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -247,6 +246,7 @@
             currentPositions = spreads[currentSpreadLimit];
             drawnCardsCount = 0;
             totalScore = 0;
+            drawnCardsData = [];
             
             document.getElementById('controlsArea').style.display = 'none';
             document.getElementById('cardsContainer').innerHTML = '';
@@ -256,7 +256,6 @@
             deckArea.style.display = 'flex';
             updateInstruction();
 
-            // สับไพ่ก่อนที่จะแจกแจงลงในกอง 78 ใบ
             activeDeck = shuffleDeck(tarotDeck);
             setupDeckElements();
         }
@@ -266,11 +265,9 @@
             const cards = deckArea.querySelectorAll('.card-back');
             cards.forEach(card => card.remove());
 
-            // สร้างกองไพ่ 78 ใบ โดยผูก Index ไว้กับไพ่ที่สับแล้ว
             for(let i=0; i<78; i++) {
                 let cardBack = document.createElement('div');
                 cardBack.className = 'card-back';
-                // เมื่อจิ้มไพ่ใบไหน จะส่ง index i ของไพ่ใบนั้นไป
                 cardBack.onclick = function() { pickCard(this, i); };
                 deckArea.appendChild(cardBack);
             }
@@ -281,15 +278,14 @@
             document.getElementById('instructionText').innerText = `ทำสมาธิแล้วจิ้มเลือกไพ่ที่ดึงดูดคุณ (เหลืออีก ${remain} ใบ)`;
         }
 
-        // รับค่า index ของไพ่ใบที่ถูกจิ้มมาด้วย
         function pickCard(cardElement, index) {
             if (drawnCardsCount >= currentSpreadLimit) return;
-            if (cardElement.classList.contains('picked')) return; // ป้องกันการจิ้มไพ่ใบเดิมซ้ำ
+            if (cardElement.classList.contains('picked')) return;
 
-            cardElement.classList.add('picked'); // ซ่อนไพ่ใบที่ถูกเลือกไปแล้ว
+            cardElement.classList.add('picked');
 
-            // ดึงข้อมูลไพ่ที่ซ่อนอยู่ในตำแหน่งที่จิ้มจริงๆ ออกมา
             const cardData = activeDeck[index];
+            drawnCardsData.push(cardData);
             totalScore += cardData.score;
             
             renderCard(cardData, drawnCardsCount);
@@ -303,7 +299,7 @@
                 
                 const restartBtn = document.createElement('button');
                 restartBtn.innerText = "เริ่มการทำนายใหม่";
-                restartBtn.style.marginTop = "20px";
+                restartBtn.style.marginTop = "30px";
                 restartBtn.style.padding = "12px 20px";
                 restartBtn.style.fontSize = "16px";
                 restartBtn.style.borderRadius = "8px";
@@ -318,20 +314,16 @@
         }
 
         function resetRitual() {
-            // ล้างไพ่และคำทำนายบนหน้าจอ
             document.getElementById('cardsContainer').innerHTML = '';
             document.getElementById('summaryBox').style.display = 'none';
-            
-            // นำส่วนควบคุมกลับมาแสดงใหม่
             document.getElementById('controlsArea').style.display = 'flex';
             
-            // รีเซ็ตตัวแปรต่างๆ
             drawnCardsCount = 0;
             totalScore = 0;
+            drawnCardsData = [];
             activeDeck = [];
             currentPositions = [];
 
-            // เลื่อนหน้าจอกลับขึ้นไปด้านบนแบบนุ่มนวล
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -354,19 +346,83 @@
         function showSummary() {
             const summaryBox = document.getElementById('summaryBox');
             const summaryText = document.getElementById('summaryText');
-            let text = "";
+            
+            let htmlContent = "";
 
-            if (totalScore >= (currentSpreadLimit * 0.5)) {
-                text = "ไพ่สะท้อนพลังงานเชิงบวกที่โดดเด่นมากครับ อุปสรรคที่มีจะถูกคลี่คลาย ไพ่แนะนำให้คุณเดินหน้าต่อด้วยความมั่นใจ โอกาสและความสำเร็จกำลังรอคุณอยู่";
-            } else if (totalScore <= -(currentSpreadLimit * 0.3)) {
-                text = "ภาพรวมของไพ่เตือนถึงความท้าทายและการเปลี่ยนแปลงที่ต้องระวัง เป็นช่วงเวลาที่ควรชะลอการตัดสินใจเรื่องสำคัญ ถอยกลับมาตั้งหลัก ใช้สติให้มาก ทุกปัญหามีทางออกเสมอครับ";
-            } else {
-                text = "พลังงานภาพรวมอยู่ในสภาวะสมดุล ไพ่ไม่ได้ชี้ไปในทางบวกหรือลบอย่างสุดโต่ง ชะตาชีวิตช่วงนี้ขึ้นอยู่กับการกระทำของคุณเองเป็นหลัก ขอให้รักษาสมดุลทางอารมณ์และมีสติกับปัจจุบัน";
+            // 1. ดึงความหมายจากไพ่ตำแหน่งสำคัญ (Key Positional Analysis) แม่นยำตามหน้าไพ่จริง
+            let keyAnalysis = "<strong>🎯 บทสรุปเจาะลึกจากหน้าไพ่สำคัญ (อิงตามหน้าไพ่จริง):</strong><br>";
+            
+            if (currentSpreadLimit === 1) {
+                keyAnalysis += `ไพ่ <strong>${drawnCardsData[0].name}</strong> สะท้อนคำทำนายหลักว่า: <br>"${drawnCardsData[0].meaning}"<br><br>`;
+            } else if (currentSpreadLimit === 3) {
+                keyAnalysis += `• <strong>สถานการณ์ปัจจุบัน:</strong> ไพ่ ${drawnCardsData[1].name} ชี้ว่า "${drawnCardsData[1].meaning}"<br>`;
+                keyAnalysis += `• <strong>แนวโน้มอนาคต:</strong> ไพ่บทสรุป ${drawnCardsData[2].name} ทำนายว่า "${drawnCardsData[2].meaning}"<br><br>`;
+            } else if (currentSpreadLimit === 5) {
+                keyAnalysis += `• <strong>คำแนะนำจากไพ่:</strong> ไพ่ ${drawnCardsData[3].name} แนะนำว่า "${drawnCardsData[3].meaning}"<br>`;
+                keyAnalysis += `• <strong>บทสรุปความสัมพันธ์:</strong> ไพ่ ${drawnCardsData[4].name} ชี้ชัดถึงผลลัพธ์ว่า "${drawnCardsData[4].meaning}"<br><br>`;
+            } else if (currentSpreadLimit === 6) {
+                keyAnalysis += `• <strong>ผลลัพธ์ที่จะเกิดขึ้น:</strong> จากการตัดสินใจครั้งนี้ ไพ่ใบสรุป ${drawnCardsData[5].name} ทำนายว่า "${drawnCardsData[5].meaning}"<br><br>`;
+            } else if (currentSpreadLimit === 10) {
+                keyAnalysis += `• <strong>อุปสรรคที่ขัดขวาง:</strong> ไพ่ ${drawnCardsData[1].name} เตือนให้ระวังเรื่อง "${drawnCardsData[1].meaning}"<br>`;
+                keyAnalysis += `• <strong>เป้าหมายที่คาดหวัง:</strong> ไพ่ ${drawnCardsData[4].name} บ่งบอกถึง "${drawnCardsData[4].meaning}"<br>`;
+                keyAnalysis += `• <strong>บทสรุปภาพรวมทั้งหมด:</strong> ไพ่ชี้ชะตา ${drawnCardsData[9].name} สรุปผลลัพธ์สุดท้ายว่า "${drawnCardsData[9].meaning}"<br><br>`;
             }
 
-            summaryText.innerText = text;
+            htmlContent += keyAnalysis;
+
+            // 2. วิเคราะห์พลังงานภาพรวม (Overall Energy)
+            let energyText = "";
+            let scoreRatio = totalScore / currentSpreadLimit;
+
+            if (scoreRatio >= 0.5) {
+                energyText = "ดวงชะตาของคุณในขณะนี้เปิดรับพลังงานเชิงบวกอย่างเต็มเปี่ยม สิ่งที่คาดหวังมีโอกาสประสบความสำเร็จสูง ขอให้คุณลงมือทำด้วยความมั่นใจ";
+            } else if (scoreRatio <= -0.3) {
+                energyText = "กระแสพลังงานในช่วงนี้ค่อนข้างท้าทาย ไพ่เตือนให้คุณใช้ความระมัดระวัง หลีกเลี่ยงความขัดแย้ง ทุกอุปสรรคคือบททดสอบเพื่อให้คุณแข็งแกร่งขึ้น";
+            } else {
+                energyText = "พลังงานภาพรวมอยู่ในสภาวะสมดุลและเป็นกลาง บ่งบอกว่าผลลัพธ์ของสถานการณ์นี้ขึ้นอยู่กับการกระทำและการตัดสินใจของคุณในปัจจุบันเป็นหลัก";
+            }
+
+            htmlContent += `<strong>🔮 พลังงานภาพรวม:</strong> ${energyText}<br><br>`;
+
+            // 3. วิเคราะห์อิทธิพลของธาตุ (Suit Analysis)
+            if (currentSpreadLimit > 1) {
+                let counts = { major: 0, wands: 0, cups: 0, swords: 0, pentacles: 0 };
+                drawnCardsData.forEach(card => counts[card.type]++);
+
+                let dominantSuit = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                
+                let suitText = "";
+                if (counts[dominantSuit] < 2 && currentSpreadLimit < 10) {
+                    suitText = "ไพ่มีความหลากหลายของธาตุผสมผสานกัน สถานการณ์ที่คุณเผชิญมีความเกี่ยวข้องทั้งเรื่องอารมณ์ เหตุผล และการลงมือทำ";
+                } else {
+                    switch (dominantSuit) {
+                        case 'major':
+                            suitText = "มี <strong>ไพ่ชุดหลัก (Major Arcana)</strong> ปรากฏขึ้นมาก บ่งบอกว่าคุณกำลังอยู่ใน 'จุดเปลี่ยนสำคัญ' ชะตาชีวิตและเหตุการณ์ภายนอกมีอิทธิพลสูงต่อคุณในช่วงนี้";
+                            break;
+                        case 'wands':
+                            suitText = "อิทธิพลของ <strong>ไพ่ไม้เท้า (Wands)</strong> โดดเด่น สะท้อนถึงช่วงเวลาแห่งการลงมือทำ แพชชั่น ความมุ่งมั่น และความท้าทายที่ต้องใช้พลังงานอย่างมากในการฝ่าฟัน";
+                            break;
+                        case 'cups':
+                            suitText = "อิทธิพลของ <strong>ไพ่ถ้วย (Cups)</strong> โดดเด่น เรื่องราวของอารมณ์ ความรู้สึก ความสัมพันธ์ และความรัก จะเป็นประเด็นหลักที่ส่งผลกระทบต่อจิตใจของคุณในช่วงนี้";
+                            break;
+                        case 'swords':
+                            suitText = "อิทธิพลของ <strong>ไพ่ดาบ (Swords)</strong> โดดเด่น บ่งชี้ถึงการใช้ความคิดอย่างหนัก การเผชิญหน้ากับความจริง การสื่อสาร หรืออุปสรรคที่ต้องใช้สติปัญญาความเด็ดขาดในการตัดจบปัญหา";
+                            break;
+                        case 'pentacles':
+                            suitText = "อิทธิพลของ <strong>ไพ่เหรียญ (Pentacles)</strong> โดดเด่น สถานการณ์ของคุณผูกพันกับเรื่องความเป็นจริง ความมั่นคง ทรัพย์สิน การเงิน หรืองานที่ต้องอาศัยความอดทนเพื่อหวังผลระยะยาว";
+                            break;
+                    }
+                }
+                htmlContent += `<strong>🌟 อิทธิพลธาตุที่โดดเด่น:</strong> ${suitText}`;
+            }
+
+            summaryText.innerHTML = htmlContent;
             summaryBox.style.display = 'block';
             summaryBox.animate([ { opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'translateY(0)' } ], { duration: 800, fill: 'forwards' });
+            
+            setTimeout(() => {
+                summaryBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
         }
     </script>
 </body>
