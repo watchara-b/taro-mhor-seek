@@ -1,0 +1,44 @@
+name: Deploy static content to Pages
+
+on:
+  # ทำงานอัตโนมัติเมื่อมีการ push โค้ดเข้า branch main (หรือ master)
+  push:
+    branches: ["main", "master"]
+  
+  # อนุญาตให้กดสั่งรัน workflow นี้ด้วยตัวเองได้จากหน้า Actions tab
+  workflow_dispatch:
+
+# ตั้งค่าสิทธิ์ (Permissions) ที่จำเป็นสำหรับการ Deploy ขึ้น GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# ป้องกันไม่ให้รันซ้อนกันหลายๆ รอบพร้อมกัน
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Job สำหรับการ Deploy
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # ระบุโฟลเดอร์ที่จะนำไปโฮสต์ '.' หมายถึงนำไฟล์ index.html จาก root folder ไปใช้เลย
+          path: '.'
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
