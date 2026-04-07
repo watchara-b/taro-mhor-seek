@@ -7,7 +7,6 @@
     <style>
         body { 
             font-family: 'Sarabun', sans-serif; 
-            /* อัปเกรดภาพพื้นหลังเป็นแนวกาแล็กซีและเนบิวลาที่ดูอลังการ ลึกลับ และพรีเมียมขึ้น */
             background-color: #050505; 
             background-image: linear-gradient(rgba(5, 5, 10, 0.5), rgba(0, 0, 0, 0.9)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
@@ -21,14 +20,13 @@
         .container { 
             max-width: 900px; 
             margin: 0 auto; 
-            /* ปรับความโปร่งแสงและเพิ่มความละมุนของกระจกฝ้าให้เข้ากับภาพพื้นหลังใหม่ */
             background-color: rgba(15, 20, 30, 0.35); 
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             padding: 30px; 
             border-radius: 15px; 
             box-shadow: 0 15px 50px rgba(0,0,0,0.8); 
-            border: 1px solid rgba(212, 175, 55, 0.4); /* ขอบสีทองบางๆ ให้ดูพรีเมียม */
+            border: 1px solid rgba(212, 175, 55, 0.4); 
             box-sizing: border-box; 
         }
         h1 { font-size: 28px; color: #d4af37; margin-top: 0; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
@@ -41,10 +39,8 @@
         button { background-color: #d4af37; color: #0b0c10; font-weight: bold; cursor: pointer; transition: 0.3s; border: none; }
         button:hover { background-color: #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.5); }
 
-        /* กองไพ่คว่ำสำหรับจิ้มเลือก */
         .deck-area { display: none; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 30px 0; padding: 25px 15px; background-color: #111; border-radius: 10px; max-height: 450px; overflow-y: auto; border: 1px solid #333; }
         
-        /* ลายหลังไพ่แบบใหม่ พรีเมียมและลึกลับ (Sacred Geometry) */
         .card-back { 
             width: 48px; 
             height: 75px; 
@@ -120,6 +116,15 @@
             0% { opacity: 0.5; }
             50% { opacity: 1; text-shadow: 0 0 15px #f1c40f; }
             100% { opacity: 0.5; }
+        }
+
+        .error-message {
+            color: #ffb3b3;
+            background-color: rgba(43, 27, 27, 0.9);
+            padding: 15px;
+            border: 1px solid #ff4c4c;
+            border-radius: 8px;
+            margin-top: 15px;
         }
 
         @media (max-width: 600px) { .cards-layout { flex-direction: column; align-items: center; } .card-item { max-width: 100%; width: 100%; } }
@@ -384,14 +389,24 @@
 
         // ฟังก์ชันเชื่อมต่อกับ AI (Gemini API)
         async function fetchGeminiReading(promptText) {
-            // ตรวจสอบว่ากำลังรันใน Canvas หรือไม่ โดยเช็คจากตัวแปรพิเศษของระบบ (__app_id) แทนการเช็ค hostname
             const isCanvas = typeof __app_id !== 'undefined';
             
-            // หากเป็นเว็บจริง (GitHub Pages) ให้ใช้ Key ของคุณ และใช้รุ่น gemini-1.5-flash
-            // หากเป็น Canvas (ทดสอบ) ระบบจะใช้ Key ว่างเปล่าและรุ่น preview อัตโนมัติ เพื่อให้กดทดสอบได้
-            const apiKey = isCanvas ? "" : "AIzaSyCGRMHK-Z0lhxcwXnwy_Q_ahB1M4S71OpY"; 
+            // ⚠️ หมอซีคต้องนำ API Key ของตัวเองจาก Google AI Studio มาใส่ในบรรทัดด้านล่างนี้ (ในเครื่องหมายคำพูด) ⚠️
+            // ตัวอย่าง: const myGitHubApiKey = "AIzaSyCGRMHK-Z0lhxcwXnwy_Q_ahB1M4S71OpY";
+            const myGitHubApiKey = "AIzaSyANFOzEdycVNn28rrGH-TPtC-YkF1nbTok"; 
+            
+            const apiKey = isCanvas ? "" : myGitHubApiKey;
             const modelName = isCanvas ? "gemini-2.5-flash-preview-09-2025" : "gemini-1.5-flash";
             
+            // ดักจับ Error แจ้งเตือนบนหน้าเว็บหากลืมเปลี่ยน API Key ก่อนอัปขึ้น GitHub
+            if (!isCanvas && apiKey === "นำ_API_KEY_ของจริงมาใส่ตรงนี้") {
+                return `<div class="error-message">
+                            <strong>⚠️ หมอซีคลืมใส่ API Key ครับ!</strong><br>
+                            ระบบบน GitHub Pages ไม่สามารถทำงานได้เนื่องจากยังไม่ได้เชื่อมต่อกับจักรวาล (ไม่มี API Key)<br>
+                            โปรดแก้ไขไฟล์ <code>index.html</code> บรรทัดที่ 402 แล้วนำรหัสจาก Google AI Studio มาใส่ให้เรียบร้อยครับ
+                        </div>`;
+            }
+
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
             const payload = {
@@ -402,6 +417,11 @@
                     }] 
                 }
             };
+
+            // เติม role: "user" อัตโนมัติเฉพาะตอนรันบนเว็บจริง เพื่อแก้ปัญหา Error 400 จากฝั่งเซิร์ฟเวอร์
+            if (!isCanvas) {
+                payload.contents[0].role = "user";
+            }
 
             const delays = [1000, 2000, 4000, 8000, 16000];
             for (let attempt = 0; attempt < 5; attempt++) {
@@ -415,8 +435,8 @@
                     const result = await response.json();
                     return result.candidates?.[0]?.content?.parts?.[0]?.text || "<p>ขออภัย หมอซีคไม่สามารถรับข้อความจากจักรวาลได้ในขณะนี้ โปรดลองใหม่อีกครั้ง</p>";
                 } catch (error) {
-                    console.error("Gemini API Error:", error); // <-- แสดง Error บน Console (กด F12 เพื่อดู)
-                    if (attempt === 4) return "<p>เกิดข้อผิดพลาดในการเชื่อมต่อกับจักรวาล (API Error) โปรดลองตรวจสอบความถูกต้องของ API Key ในโค้ดอีกครั้ง</p>";
+                    console.error("Gemini API Error:", error);
+                    if (attempt === 4) return `<div class="error-message">เกิดข้อผิดพลาดในการเชื่อมต่อกับจักรวาล (API Error) โปรดลองตรวจสอบความถูกต้องของ API Key ในโค้ดอีกครั้ง หรือเช็คว่าโควต้าการใช้งาน API เต็มหรือไม่ครับ</div>`;
                     await new Promise(resolve => setTimeout(resolve, delays[attempt]));
                 }
             }
