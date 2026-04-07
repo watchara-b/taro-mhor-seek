@@ -341,10 +341,17 @@
                 document.getElementById('deckArea').style.display = 'none';
                 showSummary();
                 
+                // สร้างปุ่มแบบใหม่และใส่กล่องห่อหุ้มไว้เพื่อไม่ให้ถูก Flexbox ดึงยืดจนใหญ่มหึมา
+                const btnWrapper = document.createElement('div');
+                btnWrapper.style.width = "100%";
+                btnWrapper.style.display = "flex";
+                btnWrapper.style.justifyContent = "center";
+                btnWrapper.style.marginTop = "30px";
+                btnWrapper.style.marginBottom = "20px";
+
                 const restartBtn = document.createElement('button');
                 restartBtn.innerText = "เริ่มการทำนายใหม่";
-                restartBtn.style.marginTop = "30px";
-                restartBtn.style.padding = "12px 20px";
+                restartBtn.style.padding = "10px 25px";
                 restartBtn.style.fontSize = "16px";
                 restartBtn.style.borderRadius = "8px";
                 restartBtn.style.border = "none";
@@ -352,8 +359,11 @@
                 restartBtn.style.color = "#0b0c10";
                 restartBtn.style.fontWeight = "bold";
                 restartBtn.style.cursor = "pointer";
+                restartBtn.style.maxWidth = "200px";
                 restartBtn.onclick = () => resetRitual();
-                document.getElementById('cardsContainer').appendChild(restartBtn);
+
+                btnWrapper.appendChild(restartBtn);
+                document.getElementById('cardsContainer').appendChild(btnWrapper);
             }
         }
 
@@ -392,14 +402,13 @@
             const isCanvas = typeof __app_id !== 'undefined';
             
             // ⚠️ หมอซีคต้องนำ API Key ของตัวเองจาก Google AI Studio มาใส่ในบรรทัดด้านล่างนี้ (ในเครื่องหมายคำพูด) ⚠️
-            // ตัวอย่าง: const myGitHubApiKey = "AIzaSyCGRMHK-Z0lhxcwXnwy_Q_ahB1M4S71OpY";
             const myGitHubApiKey = "AIzaSyANFOzEdycVNn28rrGH-TPtC-YkF1nbTok"; 
             
-            const apiKey = isCanvas ? "" : myGitHubApiKey;
+            // ใช้ .trim() เพื่อตัดช่องว่างหรือบรรทัดใหม่ที่อาจติดมาตอนก๊อปปี้ทิ้งไป
+            const apiKey = isCanvas ? "" : myGitHubApiKey.trim();
             const modelName = isCanvas ? "gemini-2.5-flash-preview-09-2025" : "gemini-1.5-flash";
             
-            // ดักจับ Error แจ้งเตือนบนหน้าเว็บหากลืมเปลี่ยน API Key ก่อนอัปขึ้น GitHub
-            if (!isCanvas && apiKey === "นำ_API_KEY_ของจริงมาใส่ตรงนี้") {
+            if (!isCanvas && (apiKey === "นำ_API_KEY_ของจริงมาใส่ตรงนี้" || apiKey === "")) {
                 return `<div class="error-message">
                             <strong>⚠️ หมอซีคลืมใส่ API Key ครับ!</strong><br>
                             ระบบบน GitHub Pages ไม่สามารถทำงานได้เนื่องจากยังไม่ได้เชื่อมต่อกับจักรวาล (ไม่มี API Key)<br>
@@ -409,19 +418,12 @@
 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-            const payload = {
-                contents: [{ parts: [{ text: promptText }] }],
-                systemInstruction: { 
-                    parts: [{ 
-                        text: "คุณคือ 'หมอซีค (Mhor Seek)' ผู้เชี่ยวชาญด้านการอ่านไพ่ยิปซีระดับปรมาจารย์ ให้คำทำนายที่ลึกซึ้ง แม่นยำ มีเมตตา และเป็นมืออาชีพ คุณจะได้รับข้อมูลหน้าไพ่และตำแหน่งไพ่ที่ผู้ใช้จับได้ ให้คุณเชื่อมโยงความหมายของไพ่ทั้งหมดเข้าด้วยกันเพื่อทำนายดวงชะตา ตอบกลับเป็นภาษาไทย จัดรูปแบบการตอบด้วย HTML tags เท่านั้น (เช่น <br>, <strong>, <p>, <ul>, <li>) เพื่อให้อ่านง่ายและสวยงาม โดยเน้นสีทองให้จุดสำคัญ ห้ามใช้ Markdown (เช่น ** หรือ *) เด็ดขาด" 
-                    }] 
-                }
-            };
+            // การแก้ปัญหาแบบถาวร: นำบทบาทหมอซีคมารวมกับข้อความผู้ใช้โดยตรง (รูปแบบธรรมดาที่สุด ไม่ใช้ systemInstruction เพื่อกันการ Error 400/404 บน API Key ภายนอก)
+            const fullPrompt = `คำสั่งสำหรับ AI: คุณคือ 'หมอซีค (Mhor Seek)' ผู้เชี่ยวชาญด้านการอ่านไพ่ยิปซีระดับปรมาจารย์ ให้คำทำนายที่ลึกซึ้ง แม่นยำ มีเมตตา และเป็นมืออาชีพ คุณจะได้รับข้อมูลหน้าไพ่และตำแหน่งไพ่ที่ผู้ใช้จับได้ ให้คุณเชื่อมโยงความหมายของไพ่ทั้งหมดเข้าด้วยกันเพื่อทำนายดวงชะตา ตอบกลับเป็นภาษาไทย จัดรูปแบบการตอบด้วย HTML tags เท่านั้น (เช่น <br>, <strong>, <p>, <ul>, <li>) เพื่อให้อ่านง่ายและสวยงาม ห้ามใช้ Markdown (เช่น ** หรือ *) เด็ดขาด\n\n---\n\n${promptText}`;
 
-            // เติม role: "user" อัตโนมัติเฉพาะตอนรันบนเว็บจริง เพื่อแก้ปัญหา Error 400 จากฝั่งเซิร์ฟเวอร์
-            if (!isCanvas) {
-                payload.contents[0].role = "user";
-            }
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
+            };
 
             const delays = [1000, 2000, 4000, 8000, 16000];
             for (let attempt = 0; attempt < 5; attempt++) {
