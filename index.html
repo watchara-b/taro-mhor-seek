@@ -421,16 +421,11 @@
 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-            // โครงสร้าง Payload รูปแบบพื้นฐานที่สุด ปลอดภัยต่อการเกิด Error 400
+            // การแก้ปัญหาแบบถาวร: นำบทบาทหมอซีคมารวมกับข้อความผู้ใช้โดยตรง (รูปแบบธรรมดาที่สุด ไม่ใช้ systemInstruction เพื่อกันการ Error 400 จากโครงสร้างข้อมูล)
+            const fullPrompt = `คำสั่งสำหรับ AI: คุณคือ 'หมอซีค (Mhor Seek)' ผู้เชี่ยวชาญด้านการอ่านไพ่ยิปซีระดับปรมาจารย์ ให้คำทำนายที่ลึกซึ้ง แม่นยำ มีเมตตา และเป็นมืออาชีพ คุณจะได้รับข้อมูลหน้าไพ่และตำแหน่งไพ่ที่ผู้ใช้จับได้ ให้คุณเชื่อมโยงความหมายของไพ่ทั้งหมดเข้าด้วยกันเพื่อทำนายดวงชะตา ตอบกลับเป็นภาษาไทย จัดรูปแบบการตอบด้วย HTML tags เท่านั้น (เช่น <br>, <strong>, <p>, <ul>, <li>) เพื่อให้อ่านง่ายและสวยงาม ห้ามใช้ Markdown (เช่น ** หรือ *) เด็ดขาด\n\n---\n\n${promptText}`;
+
             const payload = {
-                contents: [{ 
-                    parts: [{ text: promptText }] 
-                }],
-                systemInstruction: { 
-                    parts: [{ 
-                        text: "คุณคือ 'หมอซีค (Mhor Seek)' ผู้เชี่ยวชาญด้านการอ่านไพ่ยิปซีระดับปรมาจารย์ ให้คำทำนายที่ลึกซึ้ง แม่นยำ มีเมตตา และเป็นมืออาชีพ คุณจะได้รับข้อมูลหน้าไพ่และตำแหน่งไพ่ที่ผู้ใช้จับได้ ให้คุณเชื่อมโยงความหมายของไพ่ทั้งหมดเข้าด้วยกันเพื่อทำนายดวงชะตา ตอบกลับเป็นภาษาไทย จัดรูปแบบการตอบด้วย HTML tags เท่านั้น (เช่น <br>, <strong>, <p>, <ul>, <li>) เพื่อให้อ่านง่ายและสวยงาม โดยเน้นสีทองให้จุดสำคัญ ห้ามใช้ Markdown (เช่น ** หรือ *) เด็ดขาด" 
-                    }] 
-                }
+                contents: [{ parts: [{ text: fullPrompt }] }]
             };
 
             const delays = [1000, 2000, 4000, 8000, 16000];
@@ -442,13 +437,11 @@
                         body: JSON.stringify(payload)
                     });
                     
-                    // หากการยิง API ล้มเหลว (เช่น 400 หรือ 429)
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({}));
                         console.error("Gemini API Error Details:", errorData);
-                        const apiMsg = errorData.error?.message || "";
+                        const apiMsg = errorData.error?.message || "Unknown Error";
                         
-                        // ถ้าเป็น Error 400 (Bad Request) แสดงว่าคีย์ผิด หรือส่งข้อมูลผิดแบบ ห้าม Retry เด็ดขาด! (ไม่งั้นจะโดนบล็อกเป็น 429)
                         if (response.status === 400) {
                             return `<div class="error-message">
                                         <strong>⚠️ เกิดข้อผิดพลาด 400 (Bad Request)</strong><br>
@@ -472,8 +465,8 @@
                         // หากพยายามครบ 5 ครั้งแล้วยังเป็น 429 แสดงว่าโควต้าเต็มชั่วคราว
                         if (error.message === "429") {
                             return `<div class="error-message">
-                                        <strong>⚠️ โควต้าการใช้งาน AI เต็มชั่วคราว (Error 429)</strong><br>
-                                        เนื่องจากมีการส่งคำขอมากเกินไป โปรดรอประมาณ 1 นาทีแล้วลองทำนายใหม่อีกครั้งครับ
+                                        <strong>⚠️ โควต้าการใช้งาน AI ฟรีเต็มชั่วคราว (Error 429)</strong><br>
+                                        API ฟรีของ Gemini จำกัดการใช้งานไว้ที่ 15 ครั้ง/นาที โปรดรอสัก 1-2 นาทีแล้วลองกดทำนายใหม่อีกครั้งครับ
                                     </div>`;
                         }
                         return `<div class="error-message">เกิดข้อผิดพลาดในการเชื่อมต่อกับจักรวาล โปรดลองใหม่อีกครั้งครับ (${error.message})</div>`;
