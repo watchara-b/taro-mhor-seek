@@ -401,14 +401,16 @@
         async function fetchGeminiReading(promptText) {
             const isCanvas = typeof __app_id !== 'undefined';
             
-            // ⚠️ หมอซีคต้องนำ API Key ของตัวเองจาก Google AI Studio มาใส่ในบรรทัดด้านล่างนี้ (ในเครื่องหมายคำพูด) ⚠️
-            const myGitHubApiKey = ""; 
+            // This will be replaced by GitHub Actions
+            let apiKey = "DUMMY_KEY_FOR_SED";
             
-            // ใช้ .trim() เพื่อตัดช่องว่างหรือบรรทัดใหม่ที่อาจติดมาตอนก๊อปปี้ทิ้งไป
-            const apiKey = isCanvas ? "" : myGitHubApiKey.trim();
+            if (isCanvas) {
+                apiKey = "";
+            }
+
             const modelName = isCanvas ? "gemini-2.5-flash-preview-09-2025" : "gemini-2.0-flash";
             
-            if (!isCanvas && (apiKey === "นำ_API_KEY_ของจริงมาใส่ตรงนี้" || apiKey === "")) {
+            if (!isCanvas && (apiKey === "DUMMY_KEY_FOR_SED" || apiKey === "")) {
                 return `<div class="error-message">
                             <strong>⚠️ หมอซีคลืมใส่ API Key ครับ!</strong><br>
                             ระบบบน GitHub Pages ไม่สามารถทำงานได้เนื่องจากยังไม่ได้เชื่อมต่อกับจักรวาล (ไม่มี API Key)<br>
