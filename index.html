@@ -416,7 +416,8 @@
             const systemPrompt = `คุณคือ 'หมอซีค (Mhor Seek)' ผู้เชี่ยวชาญด้านการอ่านไพ่ยิปซีระดับปรมาจารย์ ให้คำทำนายที่ลึกซึ้ง แม่นยำ มีเมตตา และเป็นมืออาชีพ คุณจะได้รับข้อมูลหน้าไพ่และตำแหน่งไพ่ที่ผู้ใช้จับได้ ให้คุณเชื่อมโยงความหมายของไพ่ทั้งหมดเข้าด้วยกันเพื่อทำนายดวงชะตา ตอบกลับเป็นภาษาไทย จัดรูปแบบการตอบด้วย HTML tags เท่านั้น (เช่น <br>, <strong>, <p>, <ul>, <li>) เพื่อให้อ่านง่ายและสวยงาม ห้ามใช้ Markdown (เช่น ** หรือ *) เด็ดขาด`;
 
             const payload = {
-                model: "anthropic/claude-sonnet-4",
+                model: "deepseek/deepseek-chat-v3-0324:free",
+                max_tokens: 2048,
                 messages: [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: promptText }
